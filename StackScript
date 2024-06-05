@@ -3,4 +3,6 @@ apt update -y
 
 apt -y install git python3-pip tesseract-ocr
 
+git clone https://github.com/Mogarthron/Magazynier-Skaner.git
+pip3 install -r ./Magazynier-Skaner/requirements.txt
 which tesseract > Magazynier-Skaner/tes_path
