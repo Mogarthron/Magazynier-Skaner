@@ -1,0 +1,6 @@
+#!/bin/bash
+apt update -y
+
+apt -y install git python3-pip tesseract-ocr
+
+which tesseract > Magazynier-Skaner/tes_path
