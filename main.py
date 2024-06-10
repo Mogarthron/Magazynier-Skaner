@@ -2,6 +2,7 @@ from flask import Flask,render_template, request, jsonify
 import pytesseract
 from PIL import Image, ImageEnhance, ImageFilter
 import io
+from datetime import datetime as dt
 
 with open("tes_path", "r") as f:
     tes_path = f.read()
@@ -22,6 +23,7 @@ def index():
         pil_image = Image.open(image_bytes)
         text = pytesseract.image_to_string(pil_image, lang='eng')
         print(text.strip())
+        pil_image.save(f'./static/{dt.now().strftime("%Y-%m-%d_%H%M%S")}.jpg')
         # Przetwarzanie tekstu, aby wyodrębnić numery
         numbers = ''.join(filter(str.isdigit, text))
         print("numbers", numbers, len(numbers))
@@ -32,39 +34,39 @@ def index():
         # Renderowanie strony HTML z możliwością przesyłania zdjęć
         return render_template('index.html', numbers="brak numeru")
 
-@app.route('/read-number', methods=['POST'])
-def read_number():
-    if 'image' not in request.files:
-        return jsonify({"error": "Brak pliku obrazu"}), 400
+# @app.route('/read-number', methods=['POST'])
+# def read_number():
+#     if 'image' not in request.files:
+#         return jsonify({"error": "Brak pliku obrazu"}), 400
 
-    image = request.files['image']
-    image_bytes = io.BytesIO(image.read())
-    pil_image = Image.open(image_bytes)
-    text = pytesseract.image_to_string(pil_image, lang='eng')
+#     image = request.files['image']
+#     image_bytes = io.BytesIO(image.read())
+#     pil_image = Image.open(image_bytes)
+#     text = pytesseract.image_to_string(pil_image, lang='eng')
 
-    # Przetwarzanie tekstu, aby wyodrębnić numery
-    numbers = ''.join(filter(str.isdigit, text))
+#     # Przetwarzanie tekstu, aby wyodrębnić numery
+#     numbers = ''.join(filter(str.isdigit, text))
 
-    return jsonify({"number": numbers})
+#     return jsonify({"number": numbers})
 
-@app.route('/upload-from-camera', methods=['GET', 'POST'])
-def upload_from_camera():
-    if request.method == 'POST':
-        if 'camera_image' not in request.files:
-            return jsonify({"error": "Brak pliku obrazu"}), 400
+# @app.route('/upload-from-camera', methods=['GET', 'POST'])
+# def upload_from_camera():
+#     if request.method == 'POST':
+#         if 'camera_image' not in request.files:
+#             return jsonify({"error": "Brak pliku obrazu"}), 400
 
-        image = request.files['camera_image']
-        image_bytes = io.BytesIO(image.read())
-        pil_image = Image.open(image_bytes)
-        text = pytesseract.image_to_string(pil_image, lang='eng')
+#         image = request.files['camera_image']
+#         image_bytes = io.BytesIO(image.read())
+#         pil_image = Image.open(image_bytes)
+#         text = pytesseract.image_to_string(pil_image, lang='eng')
 
-        # Przetwarzanie tekstu, aby wyodrębnić numery
-        numbers = ''.join(filter(str.isdigit, text))
+#         # Przetwarzanie tekstu, aby wyodrębnić numery
+#         numbers = ''.join(filter(str.isdigit, text))
 
-        return jsonify({"number": numbers})
-    else:
-        # Renderowanie strony HTML z możliwością przesyłania zdjęć
-        return render_template('index.html')
+#         return jsonify({"number": numbers})
+#     else:
+#         # Renderowanie strony HTML z możliwością przesyłania zdjęć
+#         return render_template('index.html')
 
 if __name__ == "__main__":
     app.run("0.0.0.0", port=5000, debug=True)
