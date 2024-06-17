@@ -1,13 +1,5 @@
-from flask import Flask,render_template, request, jsonify
-import pytesseract
-from PIL import Image, ImageEnhance, ImageFilter
-import io
-from datetime import datetime as dt
+from flask import Flask, render_template, request, jsonify
 
-with open("tes_path", "r") as f:
-    tes_path = f.read()
-
-pytesseract.pytesseract.tesseract_cmd = tes_path
 
 app = Flask(__name__)
 
@@ -17,19 +9,11 @@ def index():
     if request.method == 'POST':
         if 'camera_image' not in request.files:
             return jsonify({"error": "Brak pliku obrazu"}), 400
+        
         print("odczyt danych")
-        image = request.files['camera_image']
-        image_bytes = io.BytesIO(image.read())
-        pil_image = Image.open(image_bytes)
-        text = pytesseract.image_to_string(pil_image, lang='eng')
-        print(text.strip())
-        pil_image.save(f'./static/{dt.now().strftime("%Y-%m-%d_%H%M%S")}.jpg')
-        # Przetwarzanie tekstu, aby wyodrębnić numery
-        numbers = ''.join(filter(str.isdigit, text))
-        print("numbers", numbers, len(numbers))
        
         # return jsonify({"number": numbers})
-        return render_template('index.html', numbers=numbers,)
+        return render_template('index.html')
     else:
         # Renderowanie strony HTML z możliwością przesyłania zdjęć
         return render_template('index.html', numbers="brak numeru")
