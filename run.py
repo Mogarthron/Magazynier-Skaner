@@ -47,7 +47,6 @@ def load_user(uid):
     return User.query.get(uid) 
 
 
-
 @app.route('/', methods=["GET", "POST"])
 def index():
     return render_template("index.html", user=current_user.username)
