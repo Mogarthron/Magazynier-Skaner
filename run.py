@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from flask_login import UserMixin
+from flask_login import UserMixin, LoginManager, login_user, logout_user, current_user, login_required
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -7,6 +7,11 @@ from sqlalchemy.orm import DeclarativeBase
 
 app = Flask(__name__, template_folder="templates")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./appdb.db"
+app.secret_key = "SUPER SECRET KEY"
+
+
+login_manager = LoginManager()
+login_manager.init_app(app=app)
 
 class Base(DeclarativeBase):
   pass
@@ -37,9 +42,21 @@ with app.app_context():
     db.create_all()
 
 
+@login_manager.user_loader
+def load_user(uid):
+    return User.query.get(uid) 
+
+
+
 @app.route('/', methods=["GET", "POST"])
 def index():
-    return render_template("index.html")
+    return render_template("index.html", user=current_user.username)
+
+@app.route("/login/<uid>")
+def login(uid):
+    user = User.query.get(uid)
+    login_user(user)
+    return "Succes"
 
 @app.route("/dodaj_urzytkownika/<tajne_haslo>", methods=["POST", "GET"])
 def dodaj_urzytkownika(tajne_haslo):
