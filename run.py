@@ -49,13 +49,29 @@ def load_user(uid):
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    return render_template("index.html", user=current_user.username)
+    return render_template("index.html", user=current_user)
 
-@app.route("/login/<uid>")
-def login(uid):
-    user = User.query.get(uid)
-    login_user(user)
-    return "Succes"
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return render_template("login.html")
+    elif request.method == "POST":
+        username = request.form.get("userName")
+        haslo = request.form.get("password")
+
+        # user = User.query.filter(User.username == username).first()        
+        user = db.session.query(User).filter(User.username == username).first()        
+
+        if user.haslo == haslo:
+            login_user(user)
+            return render_template("index.html")
+        else:
+            return "FILED!!!!!!!"
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return render_template("index.html")
 
 @app.route("/dodaj_urzytkownika/<tajne_haslo>", methods=["POST", "GET"])
 def dodaj_urzytkownika(tajne_haslo):
@@ -81,9 +97,10 @@ def dodaj_urzytkownika(tajne_haslo):
     return render_template("dodaj_urzytkownika.html")
 
 @app.route("/odczytaj_kod", methods=["GET","POST"])
+@login_required
 def odczytaj_kod():
     if request.method == 'POST':
-        if 'camera_image' not in request.files:
+        if 'camera_image' not in request.files:            
             return jsonify({"error": "Brak pliku obrazu"}), 400
         
         print("odczyt danych")
