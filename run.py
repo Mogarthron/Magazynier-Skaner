@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_login import UserMixin, LoginManager, login_user, logout_user, current_user, login_required
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-
+from konwertuj_img_na_text import odczyt_numeru
 
 app = Flask(__name__, template_folder="templates")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./appdb.db"
@@ -96,20 +96,44 @@ def dodaj_urzytkownika(tajne_haslo):
 
     return render_template("dodaj_urzytkownika.html")
 
-@app.route("/odczytaj_kod", methods=["GET","POST"])
-@login_required
-def odczytaj_kod():
+@app.route("/kod_wozka", methods=["GET","POST"])
+# @login_required
+def kod_wozka():
     if request.method == 'POST':
         if 'camera_image' not in request.files:            
             return jsonify({"error": "Brak pliku obrazu"}), 400
         
-        print("odczyt danych")
+        
+        numer_wozka = odczyt_numeru(request)
+        
+        print("odczyt danych:", numer_wozka)
        
-        # return jsonify({"number": numbers})
-        return render_template('odczytaj_kod.html')
+        # return jsonify({"number": numer_wozka})
+        # return redirect(url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_")))
+        redirect_url = url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_"))
+    
+        # Return the redirect URL in JSON response
+        return jsonify({"redirect_url": redirect_url}), 200
+    
     else:
         # Renderowanie strony HTML z możliwością przesyłania zdjęć
-        return render_template('odczytaj_kod.html', numbers="brak numeru")
+        return render_template('odczytaj_kod_wozka.html')
+
+@app.route("/kod_miejsca/<numer_wozka>", methods=["GET","POST"])
+def kod_miejsca(numer_wozka):
+    if request.method == 'POST':
+        if 'camera_image' not in request.files:            
+            return jsonify({"error": "Brak pliku obrazu"}), 400
+        
+        kod_miejsca = odczyt_numeru(request)
+        numer_wozka = numer_wozka.replace("_", "/")
+        print("odczyt danych:", numer_wozka,  kod_miejsca)
+       
+        # return jsonify({"number": numbers})
+        return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
+    else:
+        # Renderowanie strony HTML z możliwością przesyłania zdjęć
+        return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
 
 
 @app.route("/kontrola_czasu", methods=["GET", "POST"])
@@ -131,4 +155,4 @@ def kontrola_czasu():
 
 
 if __name__ == "__main__":
-    app.run("127.0.0.1", port=5000, debug=True)
+    app.run("0.0.0.0", port=5000, debug=True)
