@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+<!-- <style>
+    .week {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .day {
+        width: 18%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        position: relative;
+    }
+
+    .date {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        font-size: 12px;
+    }
+
+    .text-container {
+        padding: 5px;
+    }
+
+
+
+</style> -->
+{% block content %}
+<div class="container">
+    <h2>ROZKALAD WÓZKOW Z KOMISJAMI W MAGAZYNIE 1</h2>
+    <div class="container">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">A</div>
+            <div class="col">B</div>
+            <div class="col">C</div>
+            <div class="col">D</div>
+            <div class="col">E</div>
+            <div class="col">F</div>
+            <div class="col">G</div>
+            <div class="col">H</div>
+        </div>
+        {% for r in rozklad_magazynu %}
+            <div class="row">
+                {% for p in r %}
+                <div class="col">
+
+                    {{p}}
+                </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
