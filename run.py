@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_login import UserMixin, LoginManager, login_user, logout_user, current_user, login_required
-
+from datetime import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from konwertuj_img_na_text import odczyt_numeru
@@ -37,6 +37,25 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"<utowrzono: {self.username} z id {self.uid}, rola: {self.rola}>"
 
+class Stan_Mag(db.Model):
+    __tablename__ = "stan_mag"
+
+    mid = db.Column(db.Integer, primary_key=True)
+    nr_wozka = db.Column(db.String(10))
+    miejsce = db.Column(db.String(10))
+    kto_wstawil = db.Column(db.Integer)
+    kto_zabral = db.Column(db.Integer)
+    data_wstawienia = db.Column(db.String(10))
+    data_zabrania = db.Column(db.String(10))
+
+    def __init__(self, nr_wozka, miejsce, username_uid, data):
+        self.nr_wozka = nr_wozka
+        self.miejsce = miejsce
+        self.kto_wstawil = username_uid
+        self.data_wstawienia = data
+
+    def __repr__(self):
+        return f"{self.data_wstawienia}| wstowiono wozek nr {self.nr_wozka}, na miejsce {self.miejsce}"
 
 with app.app_context():
     db.create_all()
@@ -44,7 +63,8 @@ with app.app_context():
 
 @login_manager.user_loader
 def load_user(uid):
-    return User.query.get(uid) 
+    # return User.query.get(uid) 
+    return db.session.query(User).get(uid) 
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -91,9 +111,6 @@ def dodaj_urzytkownika(tajne_haslo):
     if tajne_haslo == "LISTA":
         return render_template("dodaj_urzytkownika.html", lista=db.session.query(User).all())
 
-
-        
-
     return render_template("dodaj_urzytkownika.html")
 
 @app.route("/kod_wozka", methods=["GET","POST"])
@@ -104,7 +121,7 @@ def kod_wozka():
             return jsonify({"error": "Brak pliku obrazu"}), 400
         
         
-        numer_wozka = odczyt_numeru(request)
+        numer_wozka = odczyt_numeru(request, current_user.username)
         
         print("odczyt danych:", numer_wozka)
        
@@ -120,21 +137,44 @@ def kod_wozka():
         return render_template('odczytaj_kod_wozka.html')
 
 @app.route("/kod_miejsca/<numer_wozka>", methods=["GET","POST"])
+# @login_required
 def kod_miejsca(numer_wozka):
     if request.method == 'POST':
-        if 'camera_image' not in request.files:            
-            return jsonify({"error": "Brak pliku obrazu"}), 400
+        if "zaladuj_miejsce" in list(request.form.keys())[0]:
+            if 'camera_image' not in request.files:            
+                return jsonify({"error": "Brak pliku obrazu"}), 400
+            
+            kod_miejsca = odczyt_numeru(request, current_user.username)
+            numer_wozka = numer_wozka.replace("_", "/")
+            print("odczyt danych:", numer_wozka,  kod_miejsca)
         
-        kod_miejsca = odczyt_numeru(request)
-        numer_wozka = numer_wozka.replace("_", "/")
-        print("odczyt danych:", numer_wozka,  kod_miejsca)
-       
-        # return jsonify({"number": numbers})
-        return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
+            # return jsonify({"number": numbers})
+            return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
+        elif "miejsce_wozek" in list(request.form.keys()):
+            # print("miejsc wózek!!!!", request.form.keys())
+
+            sant_mag = Stan_Mag(request.form.get('nurmerWozka'), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d"))
+            db.session.add(sant_mag)
+            db.session.commit()
+
+            return redirect(url_for('kod_wozka'))
+        
+        else:
+            return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
     else:
         # Renderowanie strony HTML z możliwością przesyłania zdjęć
         return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
 
+@app.route("/magazyn_wozkow")
+def magazyn_wozkow():
+
+    rozklad_magazynu = [
+        ["1"]+ ["" for x in range(8)],
+        ["2"]+ ["", "", "", "", "AA/111222", "","",""],
+        ["3"]+ ["" for x in range(8)],
+    ]
+
+    return render_template("magazyn_wozkow.html", rozklad_magazynu=rozklad_magazynu)
 
 @app.route("/kontrola_czasu", methods=["GET", "POST"])
 def kontrola_czasu():
