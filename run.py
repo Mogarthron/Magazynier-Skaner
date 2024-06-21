@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from flask_login import UserMixin, LoginManager, login_user, logout_user, current_user, login_required
 from datetime import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
@@ -45,8 +45,8 @@ class Stan_Mag(db.Model):
     miejsce = db.Column(db.String(10))
     kto_wstawil = db.Column(db.Integer)
     kto_zabral = db.Column(db.Integer)
-    data_wstawienia = db.Column(db.String(10))
-    data_zabrania = db.Column(db.String(10))
+    data_wstawienia = db.Column(db.String(19))
+    data_zabrania = db.Column(db.String(19))
 
     def __init__(self, nr_wozka, miejsce, username_uid, data):
         self.nr_wozka = nr_wozka
@@ -63,13 +63,22 @@ with app.app_context():
 
 @login_manager.user_loader
 def load_user(uid):
-    # return User.query.get(uid) 
+    
     return db.session.query(User).get(uid) 
 
 
 @app.route('/', methods=["GET", "POST"])
-def index():
+def index():    
+    
     return render_template("index.html", user=current_user)
+
+@app.route("/aktualny_stan_magazynu", methods=["GET", "POST"])
+def aktualny_stan_magazynu():
+
+    stan_magazynu = db.session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
+    
+    return render_template("aktualny_stan_magazynu.html", stan_magazynu=stan_magazynu)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -118,23 +127,57 @@ def dodaj_urzytkownika(tajne_haslo):
 def kod_wozka():
     if request.method == 'POST':
         if 'camera_image' not in request.files:            
-            return jsonify({"error": "Brak pliku obrazu"}), 400
+            return jsonify({"error": "Brak pliku obrazu"}), 400        
         
+        ## requesty obsługiwane przez javascript!!!!!!
         
         numer_wozka = odczyt_numeru(request, current_user.username)
+
+        if db.session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():
+           
+            redirect_url = url_for('zabierz_przesun_wozek', numer_wozka=numer_wozka.replace("/", "_"))
+            return jsonify({"redirect_url": redirect_url}), 200
         
-        print("odczyt danych:", numer_wozka)
-       
-        # return jsonify({"number": numer_wozka})
-        # return redirect(url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_")))
-        redirect_url = url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_"))
-    
-        # Return the redirect URL in JSON response
-        return jsonify({"redirect_url": redirect_url}), 200
+        else: 
+
+            redirect_url = url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_"))
+            return jsonify({"redirect_url": redirect_url}), 200
     
     else:
-        # Renderowanie strony HTML z możliwością przesyłania zdjęć
-        return render_template('odczytaj_kod_wozka.html')
+     
+        return render_template('odczytaj_kod_wozka.html', title="KOD WÓZKA")
+
+@app.route("/zabierz_przesun_wozek/<numer_wozka>", methods=["GET","POST"])
+def zabierz_przesun_wozek(numer_wozka):
+    _numer_wozka = numer_wozka.replace("_","/")
+  
+    kod_miejsca = db.session.query(Stan_Mag.miejsce).filter(Stan_Mag.nr_wozka == _numer_wozka, Stan_Mag.data_zabrania == None).all()
+         
+ 
+    if request.method == "POST" and len(kod_miejsca) > 0:
+        id_wozka_w_bazie = db.session.query(Stan_Mag.mid).filter(Stan_Mag.nr_wozka == _numer_wozka).all()[-1][0]
+
+        wozek = db.session.query(Stan_Mag).get(id_wozka_w_bazie)
+        wozek.kto_zabral = current_user.uid
+        wozek.data_zabrania = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if "zabierz" in request.form.keys():
+            
+            db.session.commit()
+
+            return redirect(url_for('kod_wozka'))
+            
+
+        if "przesun" in request.form.keys():
+                                 
+            db.session.commit()
+
+            return redirect(url_for('kod_miejsca', numer_wozka=numer_wozka))        
+        
+    if len(kod_miejsca) == 0:     
+        return render_template("zabierz_przesun_wozek.html", title=f"WÓZEK nr {numer_wozka}",numer_wozka=_numer_wozka, kod_miejsca="BRAK")
+    
+    return render_template("zabierz_przesun_wozek.html", title=f"WÓZEK nr {numer_wozka}",numer_wozka=_numer_wozka, kod_miejsca=kod_miejsca[-1][0])
 
 @app.route("/kod_miejsca/<numer_wozka>", methods=["GET","POST"])
 # @login_required
@@ -153,17 +196,19 @@ def kod_miejsca(numer_wozka):
         elif "miejsce_wozek" in list(request.form.keys()):
             # print("miejsc wózek!!!!", request.form.keys())
 
-            sant_mag = Stan_Mag(request.form.get('nurmerWozka'), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d"))
+            sant_mag = Stan_Mag(request.form.get('nurmerWozka'), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
             db.session.add(sant_mag)
             db.session.commit()
 
             return redirect(url_for('kod_wozka'))
         
         else:
-            return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
+            return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
     else:
         # Renderowanie strony HTML z możliwością przesyłania zdjęć
-        return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
+        return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
+
+
 
 @app.route("/magazyn_wozkow")
 def magazyn_wozkow():
