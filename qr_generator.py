@@ -25,8 +25,10 @@ import qrcode
 # # Save the QR code image
 # img.save("qr_code_vcard.png")
 
-kody = ["AVA/123654", "AVA/456987", "MAX/963258", "OVA/741258", "WIL/654239", "HOR/125687", "GOY/555555"]
+kody = ["B1", "B2", "B3", "B4", "B6", "B7"]
 for kod in kody:
-    img = qrcode.make(kod)
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(kod)
+    img = qr.make_image(fill_color="black", back_color="white")
     # type(img)  # qrcode.image.pil.PilImage
     img.save(f"{kod.replace('/', '_')}.png")
