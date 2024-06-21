@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+<div class="container">
+    <h2>CO ZROBIĆ Z WÓZKIEM NR {{numer_wozka}}</h2>
+    <h2>OBECNE MIEJSCE: {{kod_miejsca}}</h2>
+    <div class="row mb-3">
+        <h3>ZABIERZ WÓZEK</h3>
+        <form method="post">  
+        {% if kod_miejsca == "BRAK" %}
+        <button type="submit" class="btn btn-primary btn-lg" name="zabierz" disabled>ZABIERZ</button>
+        {% else %}
+        <button type="submit" class="btn btn-primary btn-lg" name="zabierz">ZABIERZ</button>
+        {% endif %}
+        </form>
+    </div>
+
+    <div class="row mb-3">
+        <h3>PRZEUŃ WÓZEK</h3>
+        <form method="post">  
+            {% if kod_miejsca == "BRAK" %}
+            <button type="submit" class="btn btn btn-info btn-lg" name="przesun" disabled>PRZESUN</button>
+        {% else %}
+        <button type="submit" class="btn btn btn-info btn-lg" name="przesun">PRZESUN</button>
+        {% endif %}
+            
+        </form>
+    </div>
+
+
+<div class="row mb-3">
+
+    <hr>
+    <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
+    <hr>
+    <a href="{{url_for('kod_wozka')}}" class="btn btn-lg btn-primary" role="button">SKANER KODOW</a>
+    <hr>
+    <a href="{{url_for('logout')}}" class="btn btn-lg btn-primary" role="button">WYLOGUJ</a>
+</div>
+
+    
+
+</div>
+
+{% endblock %}

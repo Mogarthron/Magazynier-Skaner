@@ -1,89 +1,80 @@
-<!doctype html>
-<html lang="en">
-  <head>
-   
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "layout.html" %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+{% block content %}
 
-    <title>KOD WÓZKA</title>
-  </head>
-  <body>
-    <a href="url_for(logout)">Wyloguj</a>
-    <h1>KOD WÓZKA</h1>
+<h1>SKANOWANIE KODU WÓZKA</h1>
 
-    <form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data">
+    <div class="input-group input-group-lg">
+        <input id="myFileInput" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera">
+    </div>
+</form>
 
-        <input id="myFileInput" class="btn btn-primary" type="file" name="camera_image" accept="image/*" capture="camera">
-        <!-- <input class="btn btn-primary" type="file" name="camera_image" accept="image/*" capture="camera"> -->
-        <!-- <input class="btn btn-primary" type="submit" value="Prześlij"> -->
-    </form>
+<hr>
+<a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
+<hr>
+<a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
+<hr>
+<a href="url_for(logout)" class="btn btn-lg btn-danger" role="button">Wyloguj</a>
 
+<script>
 
-    <script>
+    fetch('/static/rout_url.json')
+        .then(response => response.json())
+        .then(data => {
 
-fetch('/static/rout_url.json')
-    .then(response => response.json())
-    .then(data => {
-        
-        
-        // Extract the server URL from the loaded data
-        const serverUrl = data.kod_wozka;
+            // Extract the server URL from the loaded data
+            const serverUrl = data.kod_wozka;
 
-        var myInput = document.getElementById('myFileInput');
+            var myInput = document.getElementById('myFileInput');
 
-        function sendPic() {
-            var file = myInput.files[0];
-            if (file) {
-                var formData = new FormData();
-                formData.append('camera_image', file);
+            function sendPic() {
+                var file = myInput.files[0];
+                if (file) {
+                    var formData = new FormData();
+                    formData.append('camera_image', file);
 
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', serverUrl, true);  // Use the URL from the JSON file
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', serverUrl, true);  // Use the URL from the JSON file
 
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.redirect_url) {
-                            window.location.href = response.redirect_url;
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.redirect_url) {
+                                window.location.href = response.redirect_url;
+                            } else {
+                                console.log('File uploaded successfully, but no redirect URL provided.');
+                            }
                         } else {
-                            console.log('File uploaded successfully, but no redirect URL provided.');
+                            console.error('An error occurred during the upload:', xhr.statusText);
+                            console.error('Status:', xhr.status);
+                            console.error('Response:', xhr.responseText);
                         }
-                    } else {
-                        console.error('An error occurred during the upload:', xhr.statusText);
-                        console.error('Status:', xhr.status);
-                        console.error('Response:', xhr.responseText);
-                    }
-                };
+                    };
 
-                xhr.onerror = function () {
-                    console.error('A network error occurred.');
-                };
+                    xhr.onerror = function () {
+                        console.error('A network error occurred.');
+                    };
 
-                xhr.upload.onprogress = function(event) {
-                    if (event.lengthComputable) {
-                        var percentComplete = (event.loaded / event.total) * 100;
-                        console.log(`File upload progress: ${percentComplete.toFixed(2)}%`);
-                    }
-                };
+                    xhr.upload.onprogress = function (event) {
+                        if (event.lengthComputable) {
+                            var percentComplete = (event.loaded / event.total) * 100;
+                            console.log(`File upload progress: ${percentComplete.toFixed(2)}%`);
+                        }
+                    };
 
-                // Add additional data from JSON to formData if needed
-                formData.append('numer_wozka', data.numer_wozka);
+                    // Add additional data from JSON to formData if needed
+                    formData.append('numer_wozka', data.numer_wozka);
 
-                xhr.send(formData);
-            } else {
-                console.error('No file selected');
+                    xhr.send(formData);
+                } else {
+                    console.error('No file selected');
+                }
             }
-        }
 
-        myInput.addEventListener('change', sendPic, false);
-    })
-    .catch(error => console.error('Error loading JSON:', error));
-    </script>
- 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+            myInput.addEventListener('change', sendPic, false);
+        })
+        .catch(error => console.error('Error loading JSON:', error));
+</script>
 
-   
-  </body>
-</html>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Dropdown
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#">Action</a></li>
+                        <li><a class="dropdown-item" href="#">Another action</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                </li>
+            </ul>
+            <form class="d-flex">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+</nav> -->
+<div class="container">
+
+    <h2>AKTUALNY STAN MAGAZYNU</h2>
+    <hr>
+    <div class="row mb-3">       
+            <input id="wyszukajWozek" onkeyup="szukanieNrWozka()" class="form-control " type="search" placeholder="WYSZUKAJ WOZEK" aria-label="Search"> 
+    </div>
+    <hr>
+    <h3>LISTA DOSTEPNYCH WOZKOW</h3>
+    <div class="row mb-3 overflow-scroll" style="height: 150px;">
+        <ul class="list-group" id="listaWozkow">
+
+            {% for p in stan_magazynu %}
+            <li class="list-group-item">{{p.nr_wozka}}, {{p.miejsce}}</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+
+    <div class="row mb-3">
+        <hr>
+        <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
+        <hr>
+        <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">SKANER KODÓW</a>
+
+        <hr>
+        <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
+    </div>
+</div>
+
+<script>
+    function szukanieNrWozka() {
+      // Declare variables
+      var input, filter, ul, li, a, i, txtValue;
+      input = document.getElementById('wyszukajWozek');
+      filter = input.value.toUpperCase();
+      ul = document.getElementById("listaWozkow");
+      li = ul.getElementsByTagName('li');
+        
+      // Loop through all list items, and hide those who don't match the search query
+      for (i = 0; i < li.length; i++) {
+        // a = li[i].getElementsByTagName("a")[0];
+        txtValue = li[i].textContent || li[i].innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          li[i].style.display = "";
+        } else {
+          li[i].style.display = "none";
+        }
+      }
+    }
+    </script>
+{% endblock %}
