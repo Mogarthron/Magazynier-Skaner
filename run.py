@@ -189,11 +189,13 @@ def kod_miejsca(numer_wozka):
             
             kod_miejsca = odczyt_numeru(request, current_user.username)
             numer_wozka = numer_wozka.replace("_", "/")
-            print("odczyt danych:", numer_wozka,  kod_miejsca)
-        
-            # return jsonify({"number": numbers})
-            return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
-        elif "miejsce_wozek" in list(request.form.keys()):
+            print("odczyt danych:", numer_wozka,  kod_miejsca)        
+
+            # redirect_url = url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_"))
+            # return jsonify({"redirect_url": redirect_url}), 200
+            return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)             
+
+        elif "miejsce_wozek" in list(request.form.keys()) and not (("JESCZE NIE WYBRANO" in request.form.get('kodMiejsca')) or (kod_miejsca == None)):
             # print("miejsc wózek!!!!", request.form.keys())
 
             sant_mag = Stan_Mag(request.form.get('nurmerWozka'), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -201,9 +203,10 @@ def kod_miejsca(numer_wozka):
             db.session.commit()
 
             return redirect(url_for('kod_wozka'))
+      
         
-        else:
-            return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
+        # else:
+        #     return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
     else:
         # Renderowanie strony HTML z możliwością przesyłania zdjęć
         return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
