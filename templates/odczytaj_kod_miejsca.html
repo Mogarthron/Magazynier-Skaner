@@ -9,12 +9,19 @@
 
   <div class="row mb-3">
 
-    <form method="post" enctype="multipart/form-data">
-      <label for="camera_image" class="form-label form-control-lg">Załaduj zdjecie kodu miejsca</label>
+    <!-- <form method="post" enctype="multipart/form-data">
+      <label for="camera_image" class="form-label form-control-lg">ZESKANUJ KOD MIEJSCA</label>     
       <input class="form-control" type="file" name="camera_image" accept="image/*" capture="camera">
-      <br>
+      <hr>
       <input class="btn btn-primary" type="submit" name="zaladuj_miejsce" value="Zładuj kod meiejsca">
-    </form>
+    </form> -->
+
+    <form method="post" enctype="multipart/form-data">
+      <label for="camera_image" class="btn btn-primary btn-lg" style="cursor: pointer;">ZESKANUJ KOD MIEJSCA</label>     
+      <input id="camera_image" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera" style="display: none;">
+      <hr>
+      <input class="btn btn-primary" type="submit" name="zaladuj_miejsce" value="Zładuj kod meiejsca">
+    </form> 
   </div>
   <div class="row mb-3">
 
@@ -39,6 +46,13 @@
 
   </div>
 </div>
+
+<script>
+  document.querySelector('label[for="camera_image"]').addEventListener('click', function() {
+    document.getElementById('camera_image').click();
+  });
+  
+</script>
 
 
 {% endblock %}

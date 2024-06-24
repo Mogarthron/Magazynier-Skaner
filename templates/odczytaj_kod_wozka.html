@@ -5,9 +5,11 @@
 <h1>SKANOWANIE KODU WÓZKA</h1>
 
 <form method="post" enctype="multipart/form-data">
-    <div class="input-group input-group-lg">
+    <!-- <div class="input-group input-group-lg">
         <input id="myFileInput" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera">
-    </div>
+    </div> -->
+    <label for="myFileInput" class="btn btn-primary btn-lg" style="cursor: pointer;">ZESKANUJ KOD WÓZKA</label>     
+      <input id="myFileInput" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera" style="display: none;">
 </form>
 
 <hr>
@@ -18,13 +20,17 @@
 <a href="url_for(logout)" class="btn btn-lg btn-danger" role="button">Wyloguj</a>
 
 <script>
+    document.querySelector('label[for="myFileInput"]').addEventListener('click', function() {
+    document.getElementById('myFileInput').click();
+  });
+
 
     fetch('/static/rout_url.json')
         .then(response => response.json())
         .then(data => {
 
             // Extract the server URL from the loaded data
-            const serverUrl = data.kod_wozka;
+            const serverUrl = data.server_ip+"kod_wozka";
 
             var myInput = document.getElementById('myFileInput');
 
