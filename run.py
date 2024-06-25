@@ -130,6 +130,7 @@ def kod_wozka():
             return jsonify({"error": "Brak pliku obrazu"}), 400        
         
         ## requesty obsługiwane przez javascript!!!!!!
+        print(dt.now(), request.form.keys())
         
         numer_wozka = odczyt_numeru(request, current_user.username)
 
@@ -179,37 +180,38 @@ def zabierz_przesun_wozek(numer_wozka):
     
     return render_template("zabierz_przesun_wozek.html", title=f"WÓZEK nr {numer_wozka}",numer_wozka=_numer_wozka, kod_miejsca=kod_miejsca[-1][0])
 
-@app.route("/kod_miejsca/<numer_wozka>", methods=["GET","POST"])
+@app.route("/kod_miejsca/<numer_wozka>/", methods=["GET", "POST"], defaults={"kod_miejsca": None})
+@app.route("/kod_miejsca/<numer_wozka>/<kod_miejsca>", methods=["GET","POST"])
 # @login_required
-def kod_miejsca(numer_wozka):
+def kod_miejsca(numer_wozka, kod_miejsca):
+    _numer_wozka = numer_wozka.replace("_", "/")
+    
     if request.method == 'POST':
-        if "zaladuj_miejsce" in list(request.form.keys())[0]:
+        if 'camera_image' in request.files:
             if 'camera_image' not in request.files:            
                 return jsonify({"error": "Brak pliku obrazu"}), 400
             
-            kod_miejsca = odczyt_numeru(request, current_user.username)
-            numer_wozka = numer_wozka.replace("_", "/")
-            print("odczyt danych:", numer_wozka,  kod_miejsca)        
+            kod_miejsca = odczyt_numeru(request)  # Implementacja funkcji odczyt_numeru
+            print("odczyt danych:", _numer_wozka, kod_miejsca, request.form.keys())        
 
-            # redirect_url = url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_"))
-            # return jsonify({"redirect_url": redirect_url}), 200
-            return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)             
-
-        elif "miejsce_wozek" in list(request.form.keys()) and not (("JESCZE NIE WYBRANO" in request.form.get('kodMiejsca')) or (kod_miejsca == None)):
-            # print("miejsc wózek!!!!", request.form.keys())
-
-            sant_mag = Stan_Mag(request.form.get('nurmerWozka'), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
-            db.session.add(sant_mag)
-            db.session.commit()
-
-            return redirect(url_for('kod_wozka'))
-      
+            # return render_template('odczytaj_kod_miejsca.html', numer_wozka=_numer_wozka, kod_miejsca=kod_miejsca)
+            return redirect(url_for('kod_miejsca', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca))
         
-        # else:
-        #     return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
+        elif kod_miejsca and 'miejsce_wozek' in request.form.keys():
+            print("!!")
+            kod_miejsca = request.form.get('kodMiejsca')
+            if kod_miejsca and "JESZCZE NIE WYBRANO" not in kod_miejsca:
+                # Process the kod_miejsca and numer_wozka as needed
+                print("Confirming place:", _numer_wozka, kod_miejsca)
+
+                # Here you can add the logic to handle the confirmed place, e.g., save to database
+
+                return redirect(url_for('kod_wozka'))
+            else:
+                return render_template('odczytaj_kod_miejsca.html', title="KOD MIEJSCA", numer_wozka=_numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
     else:
-        # Renderowanie strony HTML z możliwością przesyłania zdjęć
-        return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
+        
+        return render_template('odczytaj_kod_miejsca.html', title="KOD MIEJSCA", numer_wozka=_numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
 
 
 

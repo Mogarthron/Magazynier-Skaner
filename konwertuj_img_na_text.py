@@ -7,7 +7,7 @@ import numpy as np
 import os
 
 
-def odczyt_numeru(request, username):
+def odczyt_numeru(request, username=None):
    
     image = request.files['camera_image']
     image_bytes = io.BytesIO(image.read())
