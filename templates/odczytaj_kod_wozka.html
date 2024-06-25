@@ -8,30 +8,36 @@
     <!-- <div class="input-group input-group-lg">
         <input id="myFileInput" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera">
     </div> -->
-    <label for="myFileInput" class="btn btn-primary btn-lg" style="cursor: pointer;">ZESKANUJ KOD WÓZKA</label>     
-      <input id="myFileInput" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera" style="display: none;">
+    <label for="myFileInput" class="btn btn-primary btn-lg" style="cursor: pointer;">ZESKANUJ KOD WÓZKA</label>
+    <input id="myFileInput" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera"
+        style="display: none;">
 </form>
 
-<hr>
-<a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
+
 <hr>
 <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
+<hr>
+<a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
 <hr>
 <a href="url_for(logout)" class="btn btn-lg btn-danger" role="button">Wyloguj</a>
 
 <script>
-    document.querySelector('label[for="myFileInput"]').addEventListener('click', function() {
-    document.getElementById('myFileInput').click();
-  });
+    
+    // document.querySelector('label[for="myFileInput"]').addEventListener('click', function () {
+    //             document.getElementById('myFileInput').click();
+    //         });
 
+    document.querySelector('label[for="myFileInput"]').addEventListener('click', function (event) {
+            event.preventDefault();
+            document.getElementById('myFileInput').click();
+        });
 
     fetch('/static/rout_url.json')
         .then(response => response.json())
         .then(data => {
 
             // Extract the server URL from the loaded data
-            const serverUrl = data.server_ip+"kod_wozka";
-
+            const serverUrl = data.server_ip + "kod_wozka";     
             var myInput = document.getElementById('myFileInput');
 
             function sendPic() {

@@ -17,11 +17,9 @@
     </form> -->
 
     <form method="post" enctype="multipart/form-data">
-      <label for="camera_image" class="btn btn-primary btn-lg" style="cursor: pointer;">ZESKANUJ KOD MIEJSCA</label>     
+      <label for="camera_image" class="btn btn-primary btn-lg" >ZESKANUJ KOD MIEJSCA</label>     
       <input id="camera_image" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera" style="display: none;">
-      <hr>
-      <input class="btn btn-primary" type="submit" name="zaladuj_miejsce" value="Zładuj kod meiejsca">
-    </form> 
+      </form> 
   </div>
   <div class="row mb-3">
 
@@ -37,10 +35,10 @@
 
   <div class="row mb-3">
 
+    <hr>    
+    <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a> 
     <hr>
     <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
-    <hr>
-    <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">POWRÓT DO SANOWANIA WÓZKA </a> 
     <hr>
     <a href="url_for(logout)" class="btn btn-lg btn-danger" role="button">WYLOGUJ</a>
 
@@ -48,10 +46,68 @@
 </div>
 
 <script>
-  document.querySelector('label[for="camera_image"]').addEventListener('click', function() {
-    document.getElementById('camera_image').click();
-  });
-  
+   document.querySelector('label[for="camera_image"]').addEventListener('click', function (event) {
+            event.preventDefault();
+            document.getElementById('camera_image').click();
+        });
+
+        // Extract the dynamic value from the URL
+        const pathname = window.location.pathname;
+        const pathSegments = pathname.split('/');
+        const dynamicValue = pathSegments[pathSegments.length - 1]; // Assuming the dynamic value is the last segment
+
+        fetch('/static/rout_url.json')
+            .then(response => response.json())
+            .then(data => {
+                const serverUrl = `${data.server_ip}kod_miejsca/${dynamicValue}`;
+
+                var myInput = document.getElementById('camera_image');
+
+                function sendPic() {
+                    var file = myInput.files[0];
+                    if (file) {
+                        var formData = new FormData();
+                        formData.append('camera_image', file);
+
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', serverUrl, true);
+
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                var response = JSON.parse(xhr.responseText);
+                                if (response.redirect_url) {
+                                    window.location.href = response.redirect_url;
+                                } else {
+                                    alert('File uploaded successfully, but no redirect URL provided.');
+                                }
+                            } else {
+                                alert(`An error occurred during the upload: ${xhr.statusText}`);
+                                alert(`Status: ${xhr.status}`);
+                                alert(`Response: ${xhr.responseText}`);
+                            }
+                        };
+
+                        xhr.onerror = function () {
+                            alert('A network error occurred.');
+                        };
+
+                        xhr.upload.onprogress = function (event) {
+                            if (event.lengthComputable) {
+                                var percentComplete = (event.loaded / event.total) * 100;
+                                console.log(`File upload progress: ${percentComplete.toFixed(2)}%`);
+                            }
+                        };
+
+                        formData.append('numer_wozka', data.numer_wozka);
+                        xhr.send(formData);
+                    } else {
+                        alert('No file selected');
+                    }
+                }
+
+                myInput.addEventListener('change', sendPic, false);
+            })
+            .catch(error => alert(`Error loading JSON: ${error}`));
 </script>
 
 
