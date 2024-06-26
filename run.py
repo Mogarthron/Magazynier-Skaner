@@ -123,7 +123,7 @@ def dodaj_urzytkownika(tajne_haslo):
     return render_template("dodaj_urzytkownika.html")
 
 @app.route("/kod_wozka", methods=["GET","POST"])
-# @login_required
+@login_required
 def kod_wozka():
     if request.method == 'POST':
         if 'camera_image' not in request.files:            
@@ -149,6 +149,7 @@ def kod_wozka():
         return render_template('odczytaj_kod_wozka.html', title="KOD WÓZKA")
 
 @app.route("/zabierz_przesun_wozek/<numer_wozka>", methods=["GET","POST"])
+@login_required
 def zabierz_przesun_wozek(numer_wozka):
     _numer_wozka = numer_wozka.replace("_","/")
   
@@ -214,7 +215,7 @@ def zabierz_przesun_wozek(numer_wozka):
 #     return render_template('odczytaj_kod_miejsca.html', title="KOD MIEJSCA", numer_wozka=_numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
 
 @app.route("/kod_miejsca/<numer_wozka>", methods=["GET","POST"])
-# @login_required
+@login_required
 def kod_miejsca(numer_wozka):
     if request.method == 'POST':
         if "zaladuj_miejsce" in list(request.form.keys())[0]:
