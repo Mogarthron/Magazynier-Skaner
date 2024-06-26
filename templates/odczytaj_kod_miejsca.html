@@ -9,17 +9,17 @@
 
   <div class="row mb-3">
 
-    <!-- <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data">
       <label for="camera_image" class="form-label form-control-lg">ZESKANUJ KOD MIEJSCA</label>     
       <input class="form-control" type="file" name="camera_image" accept="image/*" capture="camera">
       <hr>
       <input class="btn btn-primary" type="submit" name="zaladuj_miejsce" value="Zładuj kod meiejsca">
-    </form> -->
+    </form>
 
-    <form method="post" enctype="multipart/form-data">
+    <!-- <form method="post" enctype="multipart/form-data">
       <label for="camera_image" class="btn btn-primary btn-lg" >ZESKANUJ KOD MIEJSCA</label>     
       <input id="camera_image" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera" style="display: none;">
-      </form> 
+      </form>  -->
   </div>
   <div class="row mb-3">
 
@@ -45,7 +45,7 @@
   </div>
 </div>
 
-<script>
+<!-- <script>
    document.querySelector('label[for="camera_image"]').addEventListener('click', function (event) {
             event.preventDefault();
             document.getElementById('camera_image').click();
@@ -108,7 +108,7 @@
                 myInput.addEventListener('change', sendPic, false);
             })
             .catch(error => alert(`Error loading JSON: ${error}`));
-</script>
+</script> -->
 
 
 {% endblock %}
