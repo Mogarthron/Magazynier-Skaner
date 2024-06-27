@@ -259,16 +259,16 @@ def magazyn_wozkow():
 @app.route("/kontrola_czasu", methods=["GET", "POST"])
 def kontrola_czasu():
     user_name = "PAN ADAM"
-    procesy = [["ROZLADUNEK DOSTAWY NR PARTII: 20/01"],
-               ["KONTROLA JAKOSCI NR PARTII: 20/01"],
-               ["DOKLADANIE MEMORY NR PARTII: 20/01"],
-               ["DOKLADANIE OWAT NR PARTII: 20/01"],
+    procesy = [{"id":1, "nazwa":"ROZLADUNEK DOSTAWY NR PARTII: 20/01"},
+               {"id":2, "nazwa":"KONTROLA JAKOSCI NR PARTII: 20/01"},
+               {"id":3, "nazwa":"DOKLADANIE MEMORY NR PARTII: 20/01"},
+               {"id":4, "nazwa":"DOKLADANIE OWAT NR PARTII: 20/01"},
                ]
     
     if request.method == "POST":
         print(request.form.keys())
     
-    return render_template("kontrola_czasu.html", user_name=user_name, procesy=procesy)
+    return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=user_name, procesy=procesy)
 
 
 
