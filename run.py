@@ -256,6 +256,12 @@ def magazyn_wozkow():
 
     return render_template("magazyn_wozkow.html", rozklad_magazynu=rozklad_magazynu)
 
+
+@app.route("/dodaj_proces", methods=["GET", "POST"])
+def dodaj_proces():
+    
+    return render_template("dodaj_proces.html", title="DODAJ PROCES")
+
 @app.route("/kontrola_czasu", methods=["GET", "POST"])
 def kontrola_czasu():
     user_name = "PAN ADAM"
