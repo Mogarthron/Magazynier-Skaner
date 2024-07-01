@@ -11,17 +11,58 @@
                 </h1>
             </div>
         </div>
+    </div>   
+</div>
+<div class="container">
+    <div class="row mb-5">
+
+        <h3>pracownik nr: 5</h3>
+        <div class="input-group mb-3">
+            <select class="form-select">
+                <option selected>Wybierz</option>
+                <option value="1">1</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select> 
+        </div>
+        <button type="button" class="btn btn-success">ZMIEN PRACOWNIKA</button>
+        <hr>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dodajProcesModal">
+            Dodaj proces
+         </button>
     </div>
-    <div class="row">
+    {% for p in procesy_przydzielone %}
+
+    <div class="row mb-1">
+        <div class="card">
+            <div class="card-header">PROCES NR {{loop.index}} NA DZIEN YYYY:MM:DD, STATUS: {{p["status"]}}</div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col">
     
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dodajProcesModal">
-               Dodaj proces
-            </button>
-
-
-            <!-- <input type="text" name="nr_pracownika" id="nr_pracownika"> -->
-      
+                        <h4 class="card-title">{{p["proces"]}}</h4>
+                        <h5 class="card-title">{{p["nazwa_procesu"]}}</h5>
+                        <h5 class="card-title">PRIORYTET PROCESU: {{p["priorytet"]}}</h5>
+                    </div>
+                    <div class="col">
+                        
+                        <p class="card-text"><strong>                            
+                            PREFEROWNY CZAS WYKONANIA: {{p["preferowany_czas_wykonania"]}}</p>
+                        </strong>
+                        <p class="card-text">CZAS START: {{p["czas_start"]}}</p>
+                        <p class="card-text">CZAS START: {{p["czas_stop"]}}</p>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-primary">COS TAM</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    {% endfor %}
+    
 </div>
 
 <div class="modal fade" id="dodajProcesModal" tabindex="-1" aria-labelledby="dodajProcesModalLabel" aria-hidden="true">
@@ -33,20 +74,32 @@
             </div>
             <div class="modal-body">
                 <form method="post">
-                        <label for="nr_pracownika">NR PRACOWNIKA</label>
-                        <input type="text" name="nr_pracownika" id="nr_pracownika">
-                        <label for="nazwa_procesu">NR PRACOWNIKA</label>
-                        <input type="text" name="nazwa_procesu" id="nazwa_procesu">
-                        <label for="dzien_rozpoczecia">NR PRACOWNIKA</label>
-                        <input type="text" name="dzien_rozpoczecia" id="dzien_rozpoczecia">
-                        <label for="priorytet">NR PRACOWNIKA</label>
-                        <input type="text" name="priorytet" id="priorytet">
+                        <div class="row">
+
+                            <label class="form-label" for="nr_pracownika">NR PRACOWNIKA</label>
+                            <input class="form-control" type="text" name="nr_pracownika" id="nr_pracownika">
+                        </div>
+                        <div class="row">
+                            <label class="form-label" for="nazwa_procesu">NAZWA PROCESU</label>
+                            <input class="form-control" type="text" name="nazwa_procesu" id="nazwa_procesu">
+
+                        </div>
+                        <div class="row">
+
+                            <label class="form-label" for="dzien_rozpoczecia">DZIEN ROZPOCZECIA</label>
+                            <input class="form-control" type="date" name="dzien_rozpoczecia" id="dzien_rozpoczecia">
+                        </div>
+                        <div class="row">
+
+                            <label class="form-label" for="priorytet">PRIORYTER</label>
+                            <input class="form-control" type="number" min="0" max="255" step="1" name="priorytet" id="priorytet">
+                        </div>
 
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-primary">DODAJ PROCES</button>
             </div>
         </div>
     </div>
