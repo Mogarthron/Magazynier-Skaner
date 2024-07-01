@@ -57,6 +57,32 @@ class Stan_Mag(db.Model):
     def __repr__(self):
         return f"{self.data_wstawienia}| wstowiono wozek nr {self.nr_wozka}, na miejsce {self.miejsce}"
 
+class Procesy(db.Model):
+    __tablename__ = "procesy"
+
+    pid = db.Column(db.Integer, primary_key=True)
+    proces = db.Column(db.String())
+    preferowany_czas_trwania = db.Column(db.String)
+    opis = db.Column(db.String)
+
+class Procesy_Przydzielone(db.Model):
+    __tablename__ = "procesy_przydzielone"
+
+    pid = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.Integer)
+    kid = db.Column(db.Integer)
+    proces = db.Column(db.String())
+    nazwa_procesu = db.Column(db.String())
+    data_utworzenia = db.Column(db.String(19))
+    dzien_rozpoczecia = db.Column(db.String(10))
+    czas_start = db.Column(db.String(19))
+    czas_stop = db.Column(db.String(19))
+    priorytet = db.Column(db.Integer)
+    status = db.Column(db.Integer)
+    aktywna = db.Column(db.Integer)
+    uwagi_prac = db.Column(db.String)
+    uwagi_kier = db.Column(db.String)
+
 with app.app_context():
     db.create_all()
 
@@ -250,7 +276,7 @@ def magazyn_wozkow():
 
     rozklad_magazynu = [
         ["1"]+ ["" for x in range(8)],
-        ["2"]+ ["", "", "", "", "AA/111222", "","",""],
+        ["2"]+ ["", "", "", "", "AVA/111222", "","",""],
         ["3"]+ ["" for x in range(8)],
     ]
 
@@ -259,8 +285,14 @@ def magazyn_wozkow():
 
 @app.route("/dodaj_proces", methods=["GET", "POST"])
 def dodaj_proces():
+
+    procesy_przydzielone = [
+        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 1,5", "preferowany_czas_wykonania": "120min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 1, "aktywna": 1},
+        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 2,5", "preferowany_czas_wykonania": "20min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 2, "aktywna": 1},
+        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 3", "preferowany_czas_wykonania": "40min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 4, "aktywna": 1},
+    ]
     
-    return render_template("dodaj_proces.html", title="DODAJ PROCES")
+    return render_template("dodaj_proces.html", title="DODAJ PROCES", procesy_przydzielone=procesy_przydzielone)
 
 @app.route("/kontrola_czasu", methods=["GET", "POST"])
 def kontrola_czasu():
