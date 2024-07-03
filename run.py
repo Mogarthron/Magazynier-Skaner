@@ -4,6 +4,7 @@ from datetime import datetime as dt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from konwertuj_img_na_text import odczyt_numeru
+from baza_mip.models import *
 
 app = Flask(__name__, template_folder="templates")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./appdb.db"
@@ -37,51 +38,51 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"<utowrzono: {self.username} z id {self.uid}, rola: {self.rola}>"
 
-class Stan_Mag(db.Model):
-    __tablename__ = "stan_mag"
+# class Stan_Mag(db.Model):
+#     __tablename__ = "stan_mag"
 
-    mid = db.Column(db.Integer, primary_key=True)
-    nr_wozka = db.Column(db.String(10))
-    miejsce = db.Column(db.String(10))
-    kto_wstawil = db.Column(db.Integer)
-    kto_zabral = db.Column(db.Integer)
-    data_wstawienia = db.Column(db.String(19))
-    data_zabrania = db.Column(db.String(19))
+#     mid = db.Column(db.Integer, primary_key=True)
+#     nr_wozka = db.Column(db.String(10))
+#     miejsce = db.Column(db.String(10))
+#     kto_wstawil = db.Column(db.Integer)
+#     kto_zabral = db.Column(db.Integer)
+#     data_wstawienia = db.Column(db.String(19))
+#     data_zabrania = db.Column(db.String(19))
 
-    def __init__(self, nr_wozka, miejsce, username_uid, data):
-        self.nr_wozka = nr_wozka
-        self.miejsce = miejsce
-        self.kto_wstawil = username_uid
-        self.data_wstawienia = data
+#     def __init__(self, nr_wozka, miejsce, username_uid, data):
+#         self.nr_wozka = nr_wozka
+#         self.miejsce = miejsce
+#         self.kto_wstawil = username_uid
+#         self.data_wstawienia = data
 
-    def __repr__(self):
-        return f"{self.data_wstawienia}| wstowiono wozek nr {self.nr_wozka}, na miejsce {self.miejsce}"
+#     def __repr__(self):
+#         return f"{self.data_wstawienia}| wstowiono wozek nr {self.nr_wozka}, na miejsce {self.miejsce}"
 
-class Procesy(db.Model):
-    __tablename__ = "procesy"
+# class Procesy(db.Model):
+#     __tablename__ = "procesy"
 
-    pid = db.Column(db.Integer, primary_key=True)
-    proces = db.Column(db.String())
-    preferowany_czas_trwania = db.Column(db.String)
-    opis = db.Column(db.String)
+#     pid = db.Column(db.Integer, primary_key=True)
+#     proces = db.Column(db.String())
+#     preferowany_czas_trwania = db.Column(db.String)
+#     opis = db.Column(db.String)
 
-class Procesy_Przydzielone(db.Model):
-    __tablename__ = "procesy_przydzielone"
+# class Procesy_Przydzielone(db.Model):
+#     __tablename__ = "procesy_przydzielone"
 
-    pid = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.Integer)
-    kid = db.Column(db.Integer)
-    proces = db.Column(db.String())
-    nazwa_procesu = db.Column(db.String())
-    data_utworzenia = db.Column(db.String(19))
-    dzien_rozpoczecia = db.Column(db.String(10))
-    czas_start = db.Column(db.String(19))
-    czas_stop = db.Column(db.String(19))
-    priorytet = db.Column(db.Integer)
-    status = db.Column(db.Integer)
-    aktywna = db.Column(db.Integer)
-    uwagi_prac = db.Column(db.String)
-    uwagi_kier = db.Column(db.String)
+#     pid = db.Column(db.Integer, primary_key=True)
+#     uid = db.Column(db.Integer)
+#     kid = db.Column(db.Integer)
+#     proces = db.Column(db.String())
+#     nazwa_procesu = db.Column(db.String())
+#     data_utworzenia = db.Column(db.String(19))
+#     dzien_rozpoczecia = db.Column(db.String(10))
+#     czas_start = db.Column(db.String(19))
+#     czas_stop = db.Column(db.String(19))
+#     priorytet = db.Column(db.Integer)
+#     status = db.Column(db.Integer)
+#     aktywna = db.Column(db.Integer)
+#     uwagi_prac = db.Column(db.String)
+#     uwagi_kier = db.Column(db.String)
 
 with app.app_context():
     db.create_all()
@@ -101,7 +102,7 @@ def index():
 @app.route("/aktualny_stan_magazynu", methods=["GET", "POST"])
 def aktualny_stan_magazynu():
 
-    stan_magazynu = db.session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
+    stan_magazynu = mip_session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
     
     return render_template("aktualny_stan_magazynu.html", stan_magazynu=stan_magazynu)
 
@@ -160,7 +161,7 @@ def kod_wozka():
         
         numer_wozka = odczyt_numeru(request, current_user.username)
 
-        if db.session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():
+        if mip_session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():
            
             redirect_url = url_for('zabierz_przesun_wozek', numer_wozka=numer_wozka.replace("/", "_"))
             return jsonify({"redirect_url": redirect_url}), 200
@@ -179,26 +180,26 @@ def kod_wozka():
 def zabierz_przesun_wozek(numer_wozka):
     _numer_wozka = numer_wozka.replace("_","/")
   
-    kod_miejsca = db.session.query(Stan_Mag.miejsce).filter(Stan_Mag.nr_wozka == _numer_wozka, Stan_Mag.data_zabrania == None).all()
+    kod_miejsca = mip_session.query(Stan_Mag.miejsce).filter(Stan_Mag.nr_wozka == _numer_wozka, Stan_Mag.data_zabrania == None).all()
          
  
     if request.method == "POST" and len(kod_miejsca) > 0:
-        id_wozka_w_bazie = db.session.query(Stan_Mag.mid).filter(Stan_Mag.nr_wozka == _numer_wozka).all()[-1][0]
+        id_wozka_w_bazie = mip_session.query(Stan_Mag.mid).filter(Stan_Mag.nr_wozka == _numer_wozka).all()[-1][0]
 
-        wozek = db.session.query(Stan_Mag).get(id_wozka_w_bazie)
+        wozek = mip_session.query(Stan_Mag).get(id_wozka_w_bazie)
         wozek.kto_zabral = current_user.uid
         wozek.data_zabrania = dt.now().strftime("%Y-%m-%d %H:%M:%S")
         
         if "zabierz" in request.form.keys():
             
-            db.session.commit()
+            mip_session.commit()
 
             return redirect(url_for('kod_wozka'))
             
 
         if "przesun" in request.form.keys():
                                  
-            db.session.commit()
+            mip_session.commit()
 
             return redirect(url_for('kod_miejsca', numer_wozka=numer_wozka))        
         
@@ -258,8 +259,8 @@ def kod_miejsca(numer_wozka):
             # print("miejsc wózek!!!!", request.form.keys())
 
             sant_mag = Stan_Mag(request.form.get('nurmerWozka'), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
-            db.session.add(sant_mag)
-            db.session.commit()
+            mip_session.add(sant_mag)
+            mip_session.commit()
 
             return redirect(url_for('kod_wozka'))
         
