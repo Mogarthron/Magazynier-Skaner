@@ -16,16 +16,16 @@
 <div class="container">
     <div class="row mb-5">
 
-        <h3>pracownik nr: 5</h3>
+        <h3 id="nrPracownika">Pracownik Nr: NIE WYBRANO</h3>
         <div class="input-group mb-3">
-            <select class="form-select">
+            <select class="form-select" id="wybierzPracownika">
                 <option selected>Wybierz</option>
                 <option value="1">1</option>
                 <option value="4">4</option>
                 <option value="5">5</option>
             </select> 
         </div>
-        <button type="button" class="btn btn-success">ZMIEN PRACOWNIKA</button>
+        <button type="button" class="btn btn-success" onclick="zmienPracownika()">ZMIEN PRACOWNIKA</button>
         <hr>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dodajProcesModal">
             Dodaj proces
@@ -35,7 +35,9 @@
 
     <div class="row mb-1">
         <div class="card">
-            <div class="card-header">PROCES NR {{loop.index}} NA DZIEN YYYY:MM:DD, STATUS: {{p["status"]}}</div>
+            <div class="card-header">PROCES NR {{loop.index}} NA DZIEN YYYY:MM:DD, STATUS:                 
+                <span class="card-header-span">{{p["status"]}}</span>         
+            </div>
             <div class="card-body">
                 <div class="row">
 
@@ -105,5 +107,7 @@
     </div>
 </div>
 
+<script src="{{url_for('static', filename='dodaj_proces.js')}}">
+</script>
 
 {% endblock %}
