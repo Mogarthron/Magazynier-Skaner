@@ -38,51 +38,6 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"<utowrzono: {self.username} z id {self.uid}, rola: {self.rola}>"
 
-# class Stan_Mag(db.Model):
-#     __tablename__ = "stan_mag"
-
-#     mid = db.Column(db.Integer, primary_key=True)
-#     nr_wozka = db.Column(db.String(10))
-#     miejsce = db.Column(db.String(10))
-#     kto_wstawil = db.Column(db.Integer)
-#     kto_zabral = db.Column(db.Integer)
-#     data_wstawienia = db.Column(db.String(19))
-#     data_zabrania = db.Column(db.String(19))
-
-#     def __init__(self, nr_wozka, miejsce, username_uid, data):
-#         self.nr_wozka = nr_wozka
-#         self.miejsce = miejsce
-#         self.kto_wstawil = username_uid
-#         self.data_wstawienia = data
-
-#     def __repr__(self):
-#         return f"{self.data_wstawienia}| wstowiono wozek nr {self.nr_wozka}, na miejsce {self.miejsce}"
-
-# class Procesy(db.Model):
-#     __tablename__ = "procesy"
-
-#     pid = db.Column(db.Integer, primary_key=True)
-#     proces = db.Column(db.String())
-#     preferowany_czas_trwania = db.Column(db.String)
-#     opis = db.Column(db.String)
-
-# class Procesy_Przydzielone(db.Model):
-#     __tablename__ = "procesy_przydzielone"
-
-#     pid = db.Column(db.Integer, primary_key=True)
-#     uid = db.Column(db.Integer)
-#     kid = db.Column(db.Integer)
-#     proces = db.Column(db.String())
-#     nazwa_procesu = db.Column(db.String())
-#     data_utworzenia = db.Column(db.String(19))
-#     dzien_rozpoczecia = db.Column(db.String(10))
-#     czas_start = db.Column(db.String(19))
-#     czas_stop = db.Column(db.String(19))
-#     priorytet = db.Column(db.Integer)
-#     status = db.Column(db.Integer)
-#     aktywna = db.Column(db.Integer)
-#     uwagi_prac = db.Column(db.String)
-#     uwagi_kier = db.Column(db.String)
 
 with app.app_context():
     db.create_all()
@@ -288,9 +243,13 @@ def magazyn_wozkow():
 def dodaj_proces():
 
     procesy_przydzielone = [
-        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 1,5", "preferowany_czas_wykonania": "120min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 1, "aktywna": 1},
-        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 2,5", "preferowany_czas_wykonania": "20min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 2, "aktywna": 1},
+        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 1,5", "preferowany_czas_wykonania": "120min", "status": "ZAKONCZONE", "czas_start":None, "czas_stop":None, "priorytet": 1, "aktywna": 1},
+        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 2,5", "preferowany_czas_wykonania": "20min", "status": "W TRAKCIE", "czas_start":None, "czas_stop":None, "priorytet": 2, "aktywna": 1},
         {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 3", "preferowany_czas_wykonania": "40min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 4, "aktywna": 1},
+        {"id_prac":4, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 WILLOW 1", "preferowany_czas_wykonania": "60min", "status": "PRZERWANE", "czas_start":None, "czas_stop":None, "priorytet": 1, "aktywna": 1},
+        {"id_prac":4, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 WILLOW ]", "preferowany_czas_wykonania": "10min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 2, "aktywna": 1},
+        {"id_prac":4, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 WILLOW [", "preferowany_czas_wykonania": "10min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 4, "aktywna": 1},
+    
     ]
     
     return render_template("dodaj_proces.html", title="DODAJ PROCES", procesy_przydzielone=procesy_przydzielone)
