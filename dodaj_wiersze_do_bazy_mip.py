@@ -30,7 +30,8 @@ pianpol = [
 ["GOYA [L/[LH",	20],
 ["GOYA P112x100",	10],
 ["GOYA P112x80",	10],
-["OVAL [1o]",	150]]
+["OVAL [1o]",	150]
+]
 
 
 for p in pianpol:
