@@ -38,6 +38,19 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"<utowrzono: {self.username} z id {self.uid}, rola: {self.rola}>"
 
+class Dostepy(db.Model):
+    __tablename__ = "dostepy"
+
+    did = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.Integer)
+    aktualny_stan_magazynu = db.Column(db.Integer)
+    magazyn_wozkow = db.Column(db.Integer)
+    odczyt_kod_miejsca = db.Column(db.Integer)
+    odczyt_kod_wozka = db.Column(db.Integer)
+    zabierz_przesun_wozek = db.Column(db.Integer)
+    kontrola_czasu = db.Column(db.Integer)
+    dodaj_proces = db.Column(db.Integer)
+    
 
 with app.app_context():
     db.create_all()
@@ -84,25 +97,25 @@ def logout():
     logout_user()
     return render_template("index.html")
 
-@app.route("/dodaj_urzytkownika/<tajne_haslo>", methods=["POST", "GET"])
-def dodaj_urzytkownika(tajne_haslo):
+# @app.route("/dodaj_urzytkownika/<tajne_haslo>", methods=["POST", "GET"])
+# def dodaj_urzytkownika(tajne_haslo):
 
-    if tajne_haslo == "TAJNE_HASLO" and request.method == "POST":
-        user = request.form.getlist('userName')[0]
-        rola = request.form.getlist('userRole')[0]
-        haslo = request.form.getlist('haslo')[0]
+#     if tajne_haslo == "TAJNE_HASLO" and request.method == "POST":
+#         user = request.form.getlist('userName')[0]
+#         rola = request.form.getlist('userRole')[0]
+#         haslo = request.form.getlist('haslo')[0]
 
        
-        new_user = User(user, rola, haslo)
-        db.session.add(new_user)
-        db.session.commit()
+#         new_user = User(user, rola, haslo)
+#         db.session.add(new_user)
+#         db.session.commit()
     
-        return render_template("dodaj_urzytkownika.html")
+#         return render_template("dodaj_urzytkownika.html")
     
-    if tajne_haslo == "LISTA":
-        return render_template("dodaj_urzytkownika.html", lista=db.session.query(User).all())
+#     if tajne_haslo == "LISTA":
+#         return render_template("dodaj_urzytkownika.html", lista=db.session.query(User).all())
 
-    return render_template("dodaj_urzytkownika.html")
+#     return render_template("dodaj_urzytkownika.html")
 
 @app.route("/kod_wozka", methods=["GET","POST"])
 @login_required
@@ -255,18 +268,17 @@ def dodaj_proces():
     return render_template("dodaj_proces.html", title="DODAJ PROCES", procesy_przydzielone=procesy_przydzielone)
 
 @app.route("/kontrola_czasu", methods=["GET", "POST"])
+@login_required
 def kontrola_czasu():
-    user_name = "PAN ADAM"
-    procesy = [{"id":1, "nazwa":"ROZLADUNEK DOSTAWY NR PARTII: 20/01"},
-               {"id":2, "nazwa":"KONTROLA JAKOSCI NR PARTII: 20/01"},
-               {"id":3, "nazwa":"DOKLADANIE MEMORY NR PARTII: 20/01"},
-               {"id":4, "nazwa":"DOKLADANIE OWAT NR PARTII: 20/01"},
-               ]
-    
+
+    if current_user.uid == 4:
+        procesy = mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu).filter(Procesy_Przydzielone.uid == current_user.uid).all()
+        
+            
     if request.method == "POST":
         print(request.form.keys())
     
-    return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=user_name, procesy=procesy)
+    return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=procesy)
 
 
 
