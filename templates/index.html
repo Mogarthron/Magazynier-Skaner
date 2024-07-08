@@ -15,13 +15,23 @@
       {% if current_user.is_authenticated %}
       <h2>ZALOGOWANO JAKO {{current_user.username}}</h2>
 
-        {% if current_user.username == "adamr" %}
+      {% if current_user.rola == "admin" %}  
+      
+        <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">SKANER KODÓW</a>
+        <hr>
+        <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
+        <hr>       
+        <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
+        <hr>
+        <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
+
+      {% elif current_user.username == "adamr" %}
         
         <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
         <hr>
         <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
 
-        {% else %}
+      {% else %}
         <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">SKANER KODÓW</a>
         <hr>
         <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
