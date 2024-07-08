@@ -63,10 +63,21 @@ class Procesy_Przydzielone(Base):
         self.nazwa_procesu = nazwa_procesu
         self.planowany_dzien_rozpoczecia = planowany_dzien_rozpoczecia
         self.data_utworzenia = dt.now().strftime("%Y-%m-%d")
-        self.status = 0
+        self.status = 0 #0 - NIE ROZPOCZETY, 1 - W TRAKCIE, 2- PRZERWANY, 3 - ZAKONCZONY
         self.aktywna = 1
         self.priorytet = 1
         self.preferowany_czas_wykonania = preferowany_czas_wykonania
+
+    def rozpocznij_proces(self):
+        self.status = 1
+
+    def przerwij_proces(self):
+        self.status = 2
+
+    def zakoncz_proces(self):
+        self.status = 3
+
+
 
 class Procesy_w_toku(Base):
     __tablename__ = "procesy_w_toku"
@@ -77,3 +88,22 @@ class Procesy_w_toku(Base):
     przerwij = Column("przerwij", String(19))
     zakoncz = Column("zakoncz", String(19))
     uwagi_prac = Column("uwagi_pracownika", String(512))
+
+    def __init__(self, ppid):
+        self.ppid = ppid
+        self.czas_start = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+
+    def przerwij_proces(self):
+        self.przerwij = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def zakoncz_proces(self):
+        self.zakoncz = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # proces_przydzielony = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == self.ppid)
+        # proces_przydzielony.status = 2
+
+      
+
+    def __repr__(self):
+        return f"proces id: {self.ppid}, rozpoczęto: {self.czas_start}"
