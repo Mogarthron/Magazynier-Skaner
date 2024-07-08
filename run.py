@@ -271,14 +271,34 @@ def dodaj_proces():
 @login_required
 def kontrola_czasu():
 
-    if current_user.uid == 4:
-        procesy = mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu).filter(Procesy_Przydzielone.uid == current_user.uid).all()
+    
+    procesy_przydzielone = []
+
+    for pp in mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu).filter(Procesy_Przydzielone.uid == current_user.uid).all():
         
+        rozpoczete_procesy_w_toku = mip_session.query(Procesy_w_toku.ppid, Procesy_w_toku.czas_start, Procesy_w_toku.przerwij, Procesy_w_toku.zakoncz, Procesy_w_toku.uwagi_prac).filter(Procesy_w_toku.ppid == pp[0], Procesy_w_toku.zakoncz == None).all()
+   
+        if len(rozpoczete_procesy_w_toku)>0:
+        
+            if pp[0] == rozpoczete_procesy_w_toku[-1][0]:
+               
+                procesy_przydzielone.append(list(pp) + list(rozpoczete_procesy_w_toku[-1])[1:])
+        
+        else:
+            procesy_przydzielone.append(list(pp) + [None,None,None,None])
+      
             
     if request.method == "POST":
         print(request.form.keys())
-    
-    return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=procesy)
+        if 'uwagiDoProcesu' in list(request.form.keys()):
+            print("uwagi")
+        else:
+
+            akcja, ppid = list(request.form.keys())[0].split("_")
+        
+            print(akcja, ppid)
+
+    return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=procesy_przydzielone)
 
 
 
