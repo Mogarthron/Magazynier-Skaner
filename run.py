@@ -26,6 +26,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String, nullable=False)
     haslo = db.Column(db.String, nullable=False)
     rola =  db.Column(db.String, nullable=True)
+    # nr_prac = db.Column(db.Integer)
 
     def __init__(self, username, rola, haslo):
         self.username = username
@@ -43,13 +44,13 @@ class Dostepy(db.Model):
 
     did = db.Column(db.Integer, primary_key=True)
     uid = db.Column(db.Integer)
-    aktualny_stan_magazynu = db.Column(db.Integer)
-    magazyn_wozkow = db.Column(db.Integer)
-    odczyt_kod_miejsca = db.Column(db.Integer)
-    odczyt_kod_wozka = db.Column(db.Integer)
-    zabierz_przesun_wozek = db.Column(db.Integer)
-    kontrola_czasu = db.Column(db.Integer)
-    dodaj_proces = db.Column(db.Integer)
+    aktualny_stan_magazynu = db.Column(db.Integer, default=0)
+    magazyn_wozkow = db.Column(db.Integer, default=0)
+    odczyt_kod_miejsca = db.Column(db.Integer, default=0)
+    odczyt_kod_wozka = db.Column(db.Integer, default=0)
+    zabierz_przesun_wozek = db.Column(db.Integer, default=0)
+    kontrola_czasu = db.Column(db.Integer, default=0)
+    dodaj_proces = db.Column(db.Integer, default=0)
     
 
 with app.app_context():
@@ -270,23 +271,6 @@ def dodaj_proces():
 @app.route("/kontrola_czasu", methods=["GET", "POST"])
 @login_required
 def kontrola_czasu():
-
-    
-    # procesy_przydzielone = []
-
-    # for pp in mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu).filter(Procesy_Przydzielone.uid == current_user.uid).all():
-        
-    #     rozpoczete_procesy_w_toku = mip_session.query(Procesy_w_toku.ppid, Procesy_w_toku.czas_start, Procesy_w_toku.przerwij, Procesy_w_toku.zakoncz, Procesy_w_toku.uwagi_prac).filter(Procesy_w_toku.ppid == pp[0], Procesy_w_toku.zakoncz == None).all()
-   
-    #     if len(rozpoczete_procesy_w_toku)>0:
-        
-    #         if pp[0] == rozpoczete_procesy_w_toku[-1][0]:
-               
-    #             procesy_przydzielone.append(list(pp) + list(rozpoczete_procesy_w_toku[-1])[1:])
-        
-    #     else:
-    #         procesy_przydzielone.append(list(pp) + [None,None,None,None])
-      
             
     if request.method == "POST":
         print(request.form.keys())
@@ -306,7 +290,7 @@ def kontrola_czasu():
                 mip_session.commit()
 
             elif akcja == "wznow":
-                
+
                 mip_session.add(Procesy_w_toku(ppid=int(ppid)))
                 przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
 
@@ -316,6 +300,7 @@ def kontrola_czasu():
 
 
             elif akcja == "przerwij":
+
                 przerwany_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
                 przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
                 
@@ -325,6 +310,7 @@ def kontrola_czasu():
                 mip_session.commit()
 
             elif akcja == "zakoncz":
+
                 zakonczony_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
                 przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
 
