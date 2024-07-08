@@ -91,19 +91,13 @@ class Procesy_w_toku(Base):
 
     def __init__(self, ppid):
         self.ppid = ppid
-        self.czas_start = dt.now().strftime("%Y-%m-%d %H:%M:%S")
-        
+        self.czas_start = dt.now().strftime("%Y-%m-%d %H:%M:%S")        
 
     def przerwij_proces(self):
         self.przerwij = dt.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def zakoncz_proces(self):
         self.zakoncz = dt.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # proces_przydzielony = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == self.ppid)
-        # proces_przydzielony.status = 2
-
-      
 
     def __repr__(self):
         return f"proces id: {self.ppid}, rozpoczęto: {self.czas_start}"
