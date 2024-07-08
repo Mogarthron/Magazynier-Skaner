@@ -272,9 +272,76 @@ def dodaj_proces():
 def kontrola_czasu():
 
     
+    # procesy_przydzielone = []
+
+    # for pp in mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu).filter(Procesy_Przydzielone.uid == current_user.uid).all():
+        
+    #     rozpoczete_procesy_w_toku = mip_session.query(Procesy_w_toku.ppid, Procesy_w_toku.czas_start, Procesy_w_toku.przerwij, Procesy_w_toku.zakoncz, Procesy_w_toku.uwagi_prac).filter(Procesy_w_toku.ppid == pp[0], Procesy_w_toku.zakoncz == None).all()
+   
+    #     if len(rozpoczete_procesy_w_toku)>0:
+        
+    #         if pp[0] == rozpoczete_procesy_w_toku[-1][0]:
+               
+    #             procesy_przydzielone.append(list(pp) + list(rozpoczete_procesy_w_toku[-1])[1:])
+        
+    #     else:
+    #         procesy_przydzielone.append(list(pp) + [None,None,None,None])
+      
+            
+    if request.method == "POST":
+        print(request.form.keys())
+        if 'uwagiDoProcesu' in list(request.form.keys()):
+            print("uwagi")
+        
+        else:
+
+            akcja, ppid = list(request.form.keys())[0].split("_")
+            if akcja == "start":
+             
+                mip_session.add(Procesy_w_toku(ppid=int(ppid)))
+                przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+
+                przydzielony_porces.rozpocznij_proces()
+
+                mip_session.commit()
+
+            elif akcja == "wznow":
+                
+                mip_session.add(Procesy_w_toku(ppid=int(ppid)))
+                przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+
+                przydzielony_porces.rozpocznij_proces()
+
+                mip_session.commit()
+
+
+            elif akcja == "przerwij":
+                przerwany_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+                przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+                
+                przerwany_proces.przerwij_proces()
+                przydzielony_porces.przerwij_proces()
+               
+                mip_session.commit()
+
+            elif akcja == "zakoncz":
+                zakonczony_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+                przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+
+                zakonczony_proces.zakoncz_proces()
+                przydzielony_porces.zakoncz_proces()
+
+                mip_session.commit()
+             
+            return redirect(url_for("kontrola_czasu"))#, title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=odswierz_procesy()))
+
+    return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=odswierz_procesy())
+
+
+def odswierz_procesy():
     procesy_przydzielone = []
 
-    for pp in mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu).filter(Procesy_Przydzielone.uid == current_user.uid).all():
+    for pp in mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).all():
         
         rozpoczete_procesy_w_toku = mip_session.query(Procesy_w_toku.ppid, Procesy_w_toku.czas_start, Procesy_w_toku.przerwij, Procesy_w_toku.zakoncz, Procesy_w_toku.uwagi_prac).filter(Procesy_w_toku.ppid == pp[0], Procesy_w_toku.zakoncz == None).all()
    
@@ -286,21 +353,8 @@ def kontrola_czasu():
         
         else:
             procesy_przydzielone.append(list(pp) + [None,None,None,None])
-      
-            
-    if request.method == "POST":
-        print(request.form.keys())
-        if 'uwagiDoProcesu' in list(request.form.keys()):
-            print("uwagi")
-        else:
 
-            akcja, ppid = list(request.form.keys())[0].split("_")
-        
-            print(akcja, ppid)
-
-    return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=procesy_przydzielone)
-
-
+    return procesy_przydzielone
 
 
 
