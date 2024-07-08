@@ -5,20 +5,26 @@
     <h4>LISTA PROCESÓW W TOKU DLA {{user_name}}</h4>
 
     <div class="row mb-3 overflow-scroll" style="height: 450px;">
+    <!-- <div class="row mb-3"> -->
    
         {% for i in procesy %}
         <div class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title">{{i[1]}}</h5>
-               
+                               
+                <h5 class="card-title">{{i[1]}}</h5> 
+
                 <div class="container">
                     <div class="row">
 
                         <div class="col">
                             <form method="post">
-                                {% if i[-4] != None %}                                
+                                {% if i[2] > 0 and i[2] != 2 %}                                
                                 <button type="submit" name="start_{{i[0]}}"
                                     class="btn btn-success btn-lg" disabled>Start</button>
+                                {% elif i[2] == 2  %}
+                                <button type="submit" name="wznow_{{i[0]}}"
+                                    class="btn btn-success btn-lg">Wznow</button>
+
                                 {% else %}                                
                                 <button type="submit" name="start_{{i[0]}}"
                                 class="btn btn-success btn-lg">Start</button>
@@ -29,8 +35,13 @@
 
                         <div class="col">
                             <form method="post">
+                                {% if i[2] == 1 %}
                                 <button type="submit" name="przerwij_{{i[0]}}"
                                     class="btn btn-warning btn-lg">Przerwij</button>
+                                    {% else %}                                
+                                    <button type="submit" name="przerwij_{{i[0]}}"
+                                    class="btn btn-warning btn-lg" disabled>Przerwij</button>
+                                    {% endif %}
                             </form>
                         </div>
                     </div>
@@ -38,8 +49,14 @@
                     <div class="row">
                         <div class="col">
                             <form method="post">
+                                {% if i[2] == 1 %}
                                 <button type="submit" name="zakoncz_{{i[0]}}"
-                                    class="btn btn-danger btn-lg ">Zakoncz</button>
+                                class="btn btn-danger btn-lg ">Zakoncz</button>
+                                    {% else %}                                
+                                    <button type="submit" name="zakoncz_{{i[0]}}"
+                                    class="btn btn-danger btn-lg " disabled>Zakoncz</button>
+                                    {% endif %}
+                           
                             </form>
                         </div>
 
@@ -47,8 +64,7 @@
                             <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal"
                                 data-bs-target="#uwagiPracownika" data-bs-whatever="{{user_name}}_{{i[0]}}" disabled>
                                 UWAGI
-                            </button>
-                           
+                            </button>                     
                             
                         </div>
 
