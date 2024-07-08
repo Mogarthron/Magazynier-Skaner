@@ -3,7 +3,9 @@
 {% block content %}
 <div class="container">
     <h4>LISTA PROCESÓW W TOKU DLA {{user_name}}</h4>
-    <div class="row mb-3 overflow-scroll" style="height: 400px;">
+
+    <div class="row mb-3 overflow-scroll" style="height: 450px;">
+   
         {% for i in procesy %}
         <div class="card mb-3">
             <div class="card-body">
@@ -14,22 +16,36 @@
 
                         <div class="col">
                             <form method="post">
+                                {% if i[-4] != None %}                                
                                 <button type="submit" name="start_{{i[0]}}"
-                                    class="btn btn-success btn-lg">Start</button>
+                                    class="btn btn-success btn-lg" disabled>Start</button>
+                                {% else %}                                
+                                <button type="submit" name="start_{{i[0]}}"
+                                class="btn btn-success btn-lg">Start</button>
+                                {% endif %}
                             </form>
                         </div>
 
 
                         <div class="col">
                             <form method="post">
-                                <button type="submit" name="stop_{{i[0]}}"
-                                    class="btn btn-danger btn-lg">Stop</button>
+                                <button type="submit" name="przerwij_{{i[0]}}"
+                                    class="btn btn-warning btn-lg">Przerwij</button>
+                            </form>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <form method="post">
+                                <button type="submit" name="zakoncz_{{i[0]}}"
+                                    class="btn btn-danger btn-lg ">Zakoncz</button>
                             </form>
                         </div>
 
                         <div class="col">                            
                             <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal"
-                                data-bs-target="#uwagiPracownika" data-bs-whatever="{{user_name}}_{{i[0]}}">
+                                data-bs-target="#uwagiPracownika" data-bs-whatever="{{user_name}}_{{i[0]}}" disabled>
                                 UWAGI
                             </button>
                            
@@ -57,7 +73,7 @@
                 <form method="post">
                     <label for="uwagiDoProcesu" class="col-form-label">Wpisz uwagi do procesu</label>
                     <textarea class="form-control" name="uwagiDoProcesu"></textarea>
-                    <input type="submit" class="btn btn-lg" name="zapiszUwagiDoProcesu">ZAPISZ UWAGE</input>
+                    <input type="submit" class="btn btn-lg" name="zapiszUwagiDoProcesu_ppid"></input>
                 </form>
             </div>
             <div class="modal-footer">
@@ -69,28 +85,15 @@
     </div>
 </div>
     <div class="row">
-        jakies inne rzeczy
+        <hr>
+        <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
+        <hr>
+        <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
     </div>
 </div>
 
-<script>
-  var uwagiPracownikaModal = document.getElementById('uwagiPracownika');
-
-  uwagiPracownikaModal.addEventListener('show.bs.modal', function (event) {
-
-  var button = event.relatedTarget;
-
-  var opis = button.getAttribute('data-bs-whatever');
- 
-  var username = opis.split("_")[0]
-  var id_procesu = opis.split("_")[1]
- 
-  var modalTitle = uwagiPracownikaModal.querySelector('.modal-title');
-  var modalBodyInput = uwagiPracownikaModal.querySelector('.modal-body input');
-
-  modalTitle.textContent = username + ': UWAGI DO PROCESU NR: ' + id_procesu;
-  modalBodyInput.value = username;
-    });
+<script src="{{url_for('static', filename='kontrola_czasu.js')}}">
+  
 </script>
 
 {% endblock %}
