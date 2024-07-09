@@ -253,6 +253,14 @@ def magazyn_wozkow():
     return render_template("magazyn_wozkow.html", rozklad_magazynu=rozklad_magazynu)
 
 
+@app.route("/podglad_procesow", methods=["GET", "POST"])
+@login_required
+def podglad_procesow():
+    procesy_przydzielone = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.data_utworzenia, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania, Procesy_Przydzielone.status).all()
+
+    return render_template("podglad_procesow.html", procesy_przydzielone=procesy_przydzielone)
+
+
 @app.route("/dodaj_proces", methods=["GET", "POST"])
 def dodaj_proces():
 
