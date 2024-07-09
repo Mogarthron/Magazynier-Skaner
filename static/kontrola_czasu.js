@@ -12,7 +12,9 @@ var uwagiPracownikaModal = document.getElementById('uwagiPracownika');
   var modalTitle = uwagiPracownikaModal.querySelector('.modal-title');
   var modalBodyInput = uwagiPracownikaModal.querySelector('.modal-body input');
 
+  var zapisz_uwage = document.getElementById("zapiszUwage")
+
   modalTitle.textContent = username + ': UWAGI DO PROCESU NR: ' + id_procesu;
-//   modalBodyInput.value = username;
+  zapisz_uwage.name = "zapiszUwagiDoProcesu_" + id_procesu;
   modalBodyInput.value = "ZAPISZ UWAGĘ";
     });

@@ -60,11 +60,19 @@
                             </form>
                         </div>
 
-                        <div class="col">                            
+                        <div class="col">      
+                            {% if i[2] > 0%}                            
                             <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal"
-                                data-bs-target="#uwagiPracownika" data-bs-whatever="{{user_name}}_{{i[0]}}" disabled>
+                                data-bs-target="#uwagiPracownika" data-bs-whatever="{{user_name}}_{{i[0]}}">
                                 UWAGI
-                            </button>                     
+                            </button>    
+                            {% else %}
+                            
+                            <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" disabled>
+                                UWAGI
+                            </button>   
+                            
+                            {% endif %}                
                             
                         </div>
 
@@ -89,7 +97,7 @@
                 <form method="post">
                     <label for="uwagiDoProcesu" class="col-form-label">Wpisz uwagi do procesu</label>
                     <textarea class="form-control" name="uwagiDoProcesu"></textarea>
-                    <input type="submit" class="btn btn-lg" name="zapiszUwagiDoProcesu_ppid"></input>
+                    <input type="submit" id="zapiszUwage" class="btn btn-lg" name="zapiszUwagiDoProcesu_ppid"></input>
                 </form>
             </div>
             <div class="modal-footer">
