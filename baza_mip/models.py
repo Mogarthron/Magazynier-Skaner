@@ -31,11 +31,13 @@ class Procesy(Base):
     proces = Column("proces", String(128))
     preferowany_czas_trwania = Column("preferowany_czas_trwania", Integer)
     opis = Column("opis", String(256))
+    numer_procesu = Column("numer_procesu", String(7))
 
-    def __init__(self, proces, preferowany_czas_trwania:int=None, opis=None):
+    def __init__(self, proces, preferowany_czas_trwania:int=None, opis=None, nr_procesu=None):
         self.proces = proces
         self.preferowany_czas_trwania = preferowany_czas_trwania
         self.opis = opis
+        self.numer_procesu = nr_procesu
 
     def __repr__(self):
         return f"otowrzono{self.proces} o id:{self.pid}"
