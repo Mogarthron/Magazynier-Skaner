@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String, nullable=False)
     haslo = db.Column(db.String, nullable=False)
     rola =  db.Column(db.String, nullable=True)
-    # nr_prac = db.Column(db.Integer)
+    nr_prac = db.Column(db.Integer)
 
     def __init__(self, username, rola, haslo):
         self.username = username
@@ -275,7 +275,13 @@ def kontrola_czasu():
     if request.method == "POST":
         print(request.form.keys())
         if 'uwagiDoProcesu' in list(request.form.keys()):
-            print("uwagi")
+            ppid = list(request.form.keys())[-1].split("_")[1]
+
+            print(ppid, request.form["uwagiDoProcesu"])
+            uwaga = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+
+            uwaga.uwagi_prac += f", {request.form['uwagiDoProcesu']}"
+            mip_session.commit()
         
         else:
 
