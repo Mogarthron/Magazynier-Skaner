@@ -1,11 +1,11 @@
-import pandas as pd
+# import pandas as pd
 
 
-komp_pianek= pd.DataFrame(session.query(KOMPLETY_PIANEK.kod, KOMPLETY_PIANEK.magazyn_skladowania).all(), columns=["KOD_ART", "MAGAZYN"]).fillna("BRAK")
+# komp_pianek= pd.DataFrame(session.query(KOMPLETY_PIANEK.kod, KOMPLETY_PIANEK.magazyn_skladowania).all(), columns=["KOD_ART", "MAGAZYN"]).fillna("BRAK")
 
 
-naliczone = pd.read_excel("Z:/450. PLANISTA - ZAOPATRZENIE/DANE_PIANKI_2424.xlsx", sheet_name="NALICZONE", usecols="C,F,Y,Z,AK")
-naliczone["RODZINA"] = naliczone.OPIS_ART.apply(lambda x: x[:3])
+# naliczone = pd.read_excel("Z:/450. PLANISTA - ZAOPATRZENIE/DANE_PIANKI_2424.xlsx", sheet_name="NALICZONE", usecols="C,F,Y,Z,AK")
+# naliczone["RODZINA"] = naliczone.OPIS_ART.apply(lambda x: x[:3])
 
 
 CZASY = {
@@ -24,12 +24,12 @@ CZASY = {
     "POPRAWKI_OD_PIANKARZY": 1,
 }
 
-with open("plan_pracy_adam.txt", "r") as f:
-    procesy = f.readlines()
+# with open("plan_pracy_adam.txt", "r") as f:
+#     procesy = f.readlines()
 
-procesy = {x.split(" ")[0]: x.split(" ")[1].replace("\n", "") for x in procesy}
+# procesy = {x.split(" ")[0]: x.split(" ")[1].replace("\n", "") for x in procesy}
 
-_kj = session.query(ZAM_PIANKI.nr_kompletacji, ZAM_PIANKI.opis, ZAM_PIANKI.ile_zam, ZAM_PIANKI.nr_partii).filter(ZAM_PIANKI.nr_partii == procesy["KONTROLA_JAKOSCI"]).all()
+# _kj = session.query(ZAM_PIANKI.nr_kompletacji, ZAM_PIANKI.opis, ZAM_PIANKI.ile_zam, ZAM_PIANKI.nr_partii).filter(ZAM_PIANKI.nr_partii == procesy["KONTROLA_JAKOSCI"]).all()
 
 
 def kj_paczki(paczki):
@@ -53,7 +53,7 @@ def kj_paczki(paczki):
         return 10
     
 
-kontrola_jakosci = {x[1]: kj_paczki(x[2])*CZASY["KONTROLA_JAKOSCI"] for x in _kj}
+# kontrola_jakosci = {x[1]: kj_paczki(x[2])*CZASY["KONTROLA_JAKOSCI"] for x in _kj}
 
 
 def czas_kompletacji(mag,ilosc):
@@ -69,6 +69,6 @@ def czas_kompletacji(mag,ilosc):
     else:
         return ilosc * 1.1
     
-kompletacja = naliczone[naliczone.LIMIT_NAZWA.str.contains("24/18/01")]#.groupby(["OPIS_ART"])["ZAPOTRZ"].sum().reset_index()
-kompletacja = kompletacja.merge(komp_pianek, on="KOD_ART", how="left")
-kompletacja["CZAS_KOMP"] = kompletacja.apply(lambda x: czas_kompletacji(x.MAGAZYN, x.ZAPOTRZ), axis=1)
+# kompletacja = naliczone[naliczone.LIMIT_NAZWA.str.contains("24/18/01")]#.groupby(["OPIS_ART"])["ZAPOTRZ"].sum().reset_index()
+# kompletacja = kompletacja.merge(komp_pianek, on="KOD_ART", how="left")
+# kompletacja["CZAS_KOMP"] = kompletacja.apply(lambda x: czas_kompletacji(x.MAGAZYN, x.ZAPOTRZ), axis=1)
