@@ -3,84 +3,94 @@
 {% block content %}
 <div class="container">
     <h4>LISTA PROCESÓW W TOKU DLA {{user_name}}</h4>
-
+    <div class="row mb-3">       
+        <input id="wyszukajPoces" onkeyup="szukanieProcesu()" class="form-control " type="search" placeholder="WYSZUKAJ PROCES" aria-label="Search"> 
+</div>
     <div class="row mb-3 overflow-scroll" style="height: 450px;">
     <!-- <div class="row mb-3"> -->
-   
-        {% for i in procesy %}
-        <div class="card mb-3">
-            <div class="card-body">
-                               
-                <h5 class="card-title">{{i[1]}}</h5> 
-
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col">
-                            <form method="post">
-                                {% if i[2] > 0 and i[2] != 2 %}                                
-                                <button type="submit" name="start_{{i[0]}}"
-                                    class="btn btn-success btn-lg" disabled>Start</button>
-                                {% elif i[2] == 2  %}
-                                <button type="submit" name="wznow_{{i[0]}}"
-                                    class="btn btn-success btn-lg">Wznow</button>
-
-                                {% else %}                                
-                                <button type="submit" name="start_{{i[0]}}"
-                                class="btn btn-success btn-lg">Start</button>
-                                {% endif %}
-                            </form>
+        <ul class="list-group" id="listaProcesow">
+            {% for i in procesy %}
+            <li class="list-group-item">
+                <div class="card mb-3">
+                    <div class="card-body">
+                                       
+                        <h5 class="card-title">{{i[1]}}</h5> 
+        
+                        <div class="container">
+                            <div class="row">
+        
+                                <div class="col">
+                                    <form method="post">
+                                        {% if i[2] > 0 and i[2] != 2 %}                                
+                                        <button type="submit" name="start_{{i[0]}}"
+                                            class="btn btn-success btn-lg" disabled>Start</button>
+                                        {% elif i[2] == 2  %}
+                                        <button type="submit" name="wznow_{{i[0]}}"
+                                            class="btn btn-success btn-lg">Wznow</button>
+        
+                                        {% else %}                                
+                                        <button type="submit" name="start_{{i[0]}}"
+                                        class="btn btn-success btn-lg">Start</button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+        
+        
+                                <div class="col">
+                                    <form method="post">
+                                        {% if i[2] == 1 %}
+                                        <button type="submit" name="przerwij_{{i[0]}}"
+                                            class="btn btn-warning btn-lg">Przerwij</button>
+                                            {% else %}                                
+                                            <button type="submit" name="przerwij_{{i[0]}}"
+                                            class="btn btn-warning btn-lg" disabled>Przerwij</button>
+                                            {% endif %}
+                                    </form>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col">
+                                    <form method="post">
+                                        {% if i[2] == 1 %}
+                                        <button type="submit" name="zakoncz_{{i[0]}}"
+                                        class="btn btn-danger btn-lg ">Zakoncz</button>
+                                            {% else %}                                
+                                            <button type="submit" name="zakoncz_{{i[0]}}"
+                                            class="btn btn-danger btn-lg " disabled>Zakoncz</button>
+                                            {% endif %}
+                                   
+                                    </form>
+                                </div>
+        
+                                <div class="col">      
+                                    {% if i[2] > 0%}                            
+                                    <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal"
+                                        data-bs-target="#uwagiPracownika" data-bs-whatever="{{user_name}}_{{i[0]}}">
+                                        UWAGI
+                                    </button>    
+                                    {% else %}
+                                    
+                                    <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" disabled>
+                                        UWAGI
+                                    </button>   
+                                    
+                                    {% endif %}                
+                                    
+                                </div>
+        
+                            </div>
                         </div>
-
-
-                        <div class="col">
-                            <form method="post">
-                                {% if i[2] == 1 %}
-                                <button type="submit" name="przerwij_{{i[0]}}"
-                                    class="btn btn-warning btn-lg">Przerwij</button>
-                                    {% else %}                                
-                                    <button type="submit" name="przerwij_{{i[0]}}"
-                                    class="btn btn-warning btn-lg" disabled>Przerwij</button>
-                                    {% endif %}
-                            </form>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col">
-                            <form method="post">
-                                {% if i[2] == 1 %}
-                                <button type="submit" name="zakoncz_{{i[0]}}"
-                                class="btn btn-danger btn-lg ">Zakoncz</button>
-                                    {% else %}                                
-                                    <button type="submit" name="zakoncz_{{i[0]}}"
-                                    class="btn btn-danger btn-lg " disabled>Zakoncz</button>
-                                    {% endif %}
-                           
-                            </form>
-                        </div>
-
-                        <div class="col">      
-                            {% if i[2] > 0%}                            
-                            <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal"
-                                data-bs-target="#uwagiPracownika" data-bs-whatever="{{user_name}}_{{i[0]}}">
-                                UWAGI
-                            </button>    
-                            {% else %}
-                            
-                            <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" disabled>
-                                UWAGI
-                            </button>   
-                            
-                            {% endif %}                
-                            
-                        </div>
-
                     </div>
                 </div>
-            </div>
-        </div>
-        {% endfor %}
+    
+    
+            </li>
+            {% endfor %}
+        </ul>
+        
+        
+       
     </div>
 
     
@@ -115,6 +125,8 @@
         <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
     </div>
 </div>
+
+
 
 <script src="{{url_for('static', filename='kontrola_czasu.js')}}">
   
