@@ -32,4 +32,5 @@ print()
 # mip_session.add(Procesy_Przydzielone(4, 5, 1, "KONTROLA JAKOSCI: LENOX [1o] - 70| NR_DOS 24/0583", "2024-07-09", 72))
 # mip_session.add(Procesy_Przydzielone(4, 5, 1, "KONTROLA JAKOSCI: LENOX [1H] - 120| NR_DOS 24/0583", "2024-07-09", 96))
 
+
 #mip_session.commit()
