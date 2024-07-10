@@ -93,7 +93,8 @@ class Procesy_w_toku(Base):
 
     def __init__(self, ppid):
         self.ppid = ppid
-        self.czas_start = dt.now().strftime("%Y-%m-%d %H:%M:%S")        
+        self.czas_start = dt.now().strftime("%Y-%m-%d %H:%M:%S")   
+        self.uwagi_prac = ""     
 
     def przerwij_proces(self):
         self.przerwij = dt.now().strftime("%Y-%m-%d %H:%M:%S")
