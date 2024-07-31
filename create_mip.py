@@ -18,5 +18,5 @@ Base.metadata.create_all(bind=mip_engine)
 # mip_session.add(Procesy("ROZLADUNEK DOSTAWY OWAT", 9, "ROZLADUNEK ROLEK OWAT Z SAMOCHODU OKOLO 9 MINUT NA ROLKE", "160_11"))
 
 #procesy Inne
-mip_session.add(Procesy("ODPADY", None, "", "000_01"))
+# mip_session.add(Procesy("ODPADY", None, "", "000_01"))
 mip_session.commit()
