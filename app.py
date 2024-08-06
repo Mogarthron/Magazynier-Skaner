@@ -256,9 +256,20 @@ def magazyn_wozkow():
 @app.route("/podglad_procesow", methods=["GET", "POST"])
 @login_required
 def podglad_procesow():
-    procesy_przydzielone = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.data_utworzenia, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania, Procesy_Przydzielone.status).all()
 
-    return render_template("podglad_procesow.html", procesy_przydzielone=procesy_przydzielone)
+    pp_aktywne = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.data_utworzenia, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania, Procesy_Przydzielone.status).filter(
+        Procesy_Przydzielone.status == 1
+    ).all()
+
+    pp_wstrzymane = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.data_utworzenia, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania, Procesy_Przydzielone.status).filter(
+        Procesy_Przydzielone.status == 2
+    ).all()
+
+    pp_nierozpoczete = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.data_utworzenia, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania, Procesy_Przydzielone.status).filter(
+        Procesy_Przydzielone.status == 0
+    ).all()
+
+    return render_template("podglad_procesow.html", pp_aktywne=pp_aktywne, pp_wstrzymane=pp_wstrzymane, pp_nierozpoczete=pp_nierozpoczete)
 
 
 @app.route("/dodaj_proces", methods=["GET", "POST"])
