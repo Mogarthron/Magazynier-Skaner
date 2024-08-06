@@ -256,7 +256,7 @@ def magazyn_wozkow():
 @app.route("/podsumowanie_procesow", methods=["GET", "POST"])
 @login_required
 def podsumowanie_procesow():
-
+    
     return render_template("podsumowanie_procesow.html")
 
 @app.route("/podglad_procesow", methods=["GET", "POST"])
