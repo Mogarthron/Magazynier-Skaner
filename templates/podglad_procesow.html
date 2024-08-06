@@ -2,96 +2,72 @@
 
 {% block content %}
 
+{% macro tabelka_z_procesami(lista_procesow) -%}
+<table class="table table-striped table-hover">
+
+    <thead>
+        <tr>
+            <th>lp</th>
+            <th>nazwa_procesu</th>
+            <th>uid</th>
+            <!-- <th>data utworzenia</th> -->
+            <th>planowany dzien rozpoczecia</th>
+            <th>preferowany czas wykonania</th>
+            <th>#</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pp in lista_procesow %}
+        <tr>
+            <td>{{loop.index}}</td>
+            {% for p in pp[1:] %}
+            <td>{{p}}</td>
+            {% endfor %}
+
+            <td>
+                <form method="post">
+                    <button type="submit" name="edytuj_{{pp[0]}}" class="btn btn-sm btn-primary">EDYTUJ</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+       
+    </tbody>
+</table>
+{%- endmacro %}
+
+
+
 <div class="container-fluid">
     <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
+    <a href="{{url_for('podsumowanie_procesow')}}" class="btn btn-lg btn-primary" role="button">PODSUMOWANIE PROCESOW</a>
     <hr>
    
         <div class="row">
-            <div class="col-3">
+            <div class="col-4">
+                <h3>PROCESY NIEROZPOCZETE</h3>
+
+                {{  tabelka_z_procesami(pp_nierozpoczete) }}
+                
+            </div>
+     
+            <div class="col-4">
+                <h3>PROCESY WSTRZYMANE</h3>
+
+                {{  tabelka_z_procesami(pp_wstrzymane) }}
+            </div>
+            <div class="col-4">
 
                 <h3>PROCESY AKTYWNE</h3>
 
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>pid</th>
-                            <th>nazwa_procesu</th>
-                            <th>uid</th>
-                            <th>data utworzenia</th>
-                            <th>planowany dzien rozpoczecia</th>
-                            <th>preferowany czas wykonania</th>
-                            <th>status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for pp in pp_aktywne %}
-                        <tr>
-                            {% for p in pp %}
-                            <td>{{p}}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {{  tabelka_z_procesami(pp_aktywne) }}
+                
 
             </div>
-            <div class="col-3">
-                <h3>PROCESY WSTRZYMANE</h3>
-
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>pid</th>
-                            <th>nazwa_procesu</th>
-                            <th>uid</th>
-                            <th>data utworzenia</th>
-                            <th>planowany dzien rozpoczecia</th>
-                            <th>preferowany czas wykonania</th>
-                            <th>status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for pp in pp_wstrzymane %}
-                        <tr>
-                            {% for p in pp %}
-                            <td>{{p}}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            
        
-            <div class="col-3">
-                <h3>PROCESY NIEROZPOCZETE</h3>
-
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>pid</th>
-                            <th>nazwa_procesu</th>
-                            <th>uid</th>
-                            <th>data utworzenia</th>
-                            <th>planowany dzien rozpoczecia</th>
-                            <th>preferowany czas wykonania</th>
-                            <th>status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for pp in pp_nierozpoczete %}
-                        <tr>
-                            {% for p in pp %}
-                            <td>{{p}}</td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="col-3">
-            DANE O PROCESACH
-        </div>
+            
+      
     
 
 </div>
