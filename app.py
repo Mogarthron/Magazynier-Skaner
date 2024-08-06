@@ -256,7 +256,7 @@ def magazyn_wozkow():
 @app.route("/podsumowanie_procesow", methods=["GET", "POST"])
 @login_required
 def podsumowanie_procesow():
-    
+
     return render_template("podsumowanie_procesow.html")
 
 @app.route("/podglad_procesow", methods=["GET", "POST"])
@@ -276,13 +276,24 @@ def podglad_procesow():
     ).all()
 
     if request.method == "POST":
-        print(list(request.form.keys()))
-
+        return redirect(url_for("edytuj_proces", pid=int(list(request.form.keys())[0].replace("edytuj_", ""))))
+    
     return render_template("podglad_procesow.html", pp_aktywne=pp_aktywne, pp_wstrzymane=pp_wstrzymane, pp_nierozpoczete=pp_nierozpoczete)
 
 
+@app.route("/edytuj_proces/<pid>", methods=["GET", "POST"])
+@login_required
+def edytuj_proces(pid):
+
+    proces = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
+        Procesy_Przydzielone.pid == pid).all()
+
+    return [x for x in proces]
+
 @app.route("/dodaj_proces", methods=["GET", "POST"])
-def dodaj_proces():
+def dodaj_proces(): 
+    
+    
 
     procesy_przydzielone = [
         {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 1,5", "preferowany_czas_wykonania": "120min", "status": "ZAKONCZONE", "czas_start":None, "czas_stop":None, "priorytet": 1, "aktywna": 1},
