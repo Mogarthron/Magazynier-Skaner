@@ -30,6 +30,12 @@
         <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
         <hr>
         <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
+             
+      {% elif current_user.username == "eliza" %}  
+
+      <a href="{{url_for('podglad_procesow')}}" class="btn btn-primary btn-lg" role="button">PODGLAD PROCESOW</a>
+      <hr>
+      <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
 
       {% else %}
         <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">SKANER KODÓW</a>
