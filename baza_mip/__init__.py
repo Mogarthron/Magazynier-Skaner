@@ -3,14 +3,17 @@ from sqlalchemy import update, insert, delete
 from sqlalchemy import URL
 
 from sqlalchemy.orm import sessionmaker, declarative_base
+import json
 
-# url_obj = URL.create("mysql+pymysql",
+with open("config.json", "r") as c:
+    mip_url = json.load(c)["MIP_URL"]
+
 url_obj = URL.create("mysql+mysqlconnector",
-                     username="root",
-                     password="password",
-                     host="127.0.0.1",
-                     port="3306",
-                     database="BAZA_MIP"
+                     username=mip_url["username"],
+                     password=mip_url["password"],
+                     host=mip_url["host"],
+                     port=mip_url["port"],
+                     database=mip_url["database"]
                      )
 
 mip_engine = create_engine(url_obj, echo=False)
