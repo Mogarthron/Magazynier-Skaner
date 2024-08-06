@@ -253,21 +253,30 @@ def magazyn_wozkow():
     return render_template("magazyn_wozkow.html", rozklad_magazynu=rozklad_magazynu)
 
 
+@app.route("/podsumowanie_procesow", methods=["GET", "POST"])
+@login_required
+def podsumowanie_procesow():
+
+    return render_template("podsumowanie_procesow.html")
+
 @app.route("/podglad_procesow", methods=["GET", "POST"])
 @login_required
 def podglad_procesow():
 
-    pp_aktywne = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.data_utworzenia, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania, Procesy_Przydzielone.status).filter(
+    pp_aktywne = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
         Procesy_Przydzielone.status == 1
     ).all()
 
-    pp_wstrzymane = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.data_utworzenia, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania, Procesy_Przydzielone.status).filter(
+    pp_wstrzymane = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
         Procesy_Przydzielone.status == 2
     ).all()
 
-    pp_nierozpoczete = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.data_utworzenia, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania, Procesy_Przydzielone.status).filter(
+    pp_nierozpoczete = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
         Procesy_Przydzielone.status == 0
     ).all()
+
+    if request.method == "POST":
+        print(list(request.form.keys()))
 
     return render_template("podglad_procesow.html", pp_aktywne=pp_aktywne, pp_wstrzymane=pp_wstrzymane, pp_nierozpoczete=pp_nierozpoczete)
 
