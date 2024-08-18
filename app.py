@@ -284,28 +284,36 @@ def podglad_procesow():
 @app.route("/edytuj_proces/<pid>", methods=["GET", "POST"])
 @login_required
 def edytuj_proces(pid):
+    
+    lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.rola.in_(("rozkroj", "agencja")))]
 
     proces = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
         Procesy_Przydzielone.pid == pid).all()
 
-    return [x for x in proces]
+    return render_template("edytuj_proces.html", proces=[x for x in proces][0])
 
 @app.route("/dodaj_proces", methods=["GET", "POST"])
 def dodaj_proces(): 
     
-    
 
-    procesy_przydzielone = [
-        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 1,5", "preferowany_czas_wykonania": "120min", "status": "ZAKONCZONE", "czas_start":None, "czas_stop":None, "priorytet": 1, "aktywna": 1},
-        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 2,5", "preferowany_czas_wykonania": "20min", "status": "W TRAKCIE", "czas_start":None, "czas_stop":None, "priorytet": 2, "aktywna": 1},
-        {"id_prac":5, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 STONE 3", "preferowany_czas_wykonania": "40min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 4, "aktywna": 1},
-        {"id_prac":4, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 WILLOW 1", "preferowany_czas_wykonania": "60min", "status": "PRZERWANE", "czas_start":None, "czas_stop":None, "priorytet": 1, "aktywna": 1},
-        {"id_prac":4, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 WILLOW ]", "preferowany_czas_wykonania": "10min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 2, "aktywna": 1},
-        {"id_prac":4, "proces": "DOKLADANIE OWAT I PIANEK", "nazwa_procesu": "26/01 WILLOW [", "preferowany_czas_wykonania": "10min", "status": "NIE ROZPOCZETE", "czas_start":None, "czas_stop":None, "priorytet": 4, "aktywna": 1},
+    lista_procesow = [x[0] for x in mip_session.query(Procesy.proces).all()]
+    lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.rola.in_(("rozkroj", "agencja")))]
+
+
+    if request.method == "POST":
+        
+        uid = db.session.query(User.uid, User.username).filter(User.username == request.form["pracownik"]).first()[0] 
+        proces_id = mip_session.query(Procesy.pid).filter(Procesy.proces == request.form["proces"]).first()[0]
+        pp = Procesy_Przydzielone(uid, current_user.uid, proces_id, request.form["nazwa_procesu"], request.form["planowana_data_rozpoczecia"], 
+                                  int(request.form["preferowany_czas_wykonania"]))
+        mip_session.add(pp)
+        mip_session.commit()
+
+        return redirect(url_for("podsumowanie_procesow"))
+
     
-    ]
     
-    return render_template("dodaj_proces.html", title="DODAJ PROCES", procesy_przydzielone=procesy_przydzielone)
+    return render_template("dodaj_proces.html", title="DODAJ PROCES", lista_procesow=lista_procesow, lista_pracownikow=lista_pracownikow)
 
 @app.route("/kontrola_czasu", methods=["GET", "POST"])
 @login_required
