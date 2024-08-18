@@ -1,18 +1,6 @@
-{% extends "layout.html" %} {% block content %}
-
+{% extends "layout.html" %} {% block content %} {{proces}}
 <div class="container">
   <form class="row g-3" method="post">
-    <div class="col-md-4">
-      <label for="proces" class="form-label">PROCES</label>
-      <select id="proces" class="form-select" name="proces">
-        <option selected>WYBIERZ</option>
-        {% for proces in lista_procesow %}
-        <option>{{proces}}</option>
-
-        {% endfor %}
-      </select>
-    </div>
-
     <div class="col-md-6">
       <label for="nazwaProcesu" class="form-label">NAZWA PROCESU</label>
       <input
@@ -20,6 +8,7 @@
         class="form-control"
         id="nazwaProcesu"
         name="nazwa_procesu"
+        value="{{proces[1]}}"
       />
     </div>
     <div class="col-md-3">
@@ -66,14 +55,13 @@
         class="form-control"
         id="planowanaDataRozpoczecia"
         name="planowana_data_rozpoczecia"
-        value="YYYY-MM-DD"
+        placeholder="{{proces[3]}}"
       />
     </div>
 
     <div class="col-12">
-      <input type="submit" class="btn btn-primary" value="DADAJ PROCES" />
+      <input type="submit" class="btn btn-primary" value="ZAPISZ ZMIANY" />
     </div>
   </form>
 </div>
-
 {% endblock %}
