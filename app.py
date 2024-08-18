@@ -290,6 +290,10 @@ def edytuj_proces(pid):
     proces = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
         Procesy_Przydzielone.pid == pid).all()
 
+    # if request.method == "POST":
+    #     proces.proces = proces
+
+
     return render_template("edytuj_proces.html", proces=[x for x in proces][0])
 
 @app.route("/dodaj_proces", methods=["GET", "POST"])
