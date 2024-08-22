@@ -1,4 +1,5 @@
 {% extends "layout.html" %} {% block content %}
+{{proces}}
 <div class="container">
   <form class="row g-3" method="post">
     <div class="col-md-6">
@@ -8,15 +9,14 @@
         class="form-control"
         id="nazwaProcesu"
         name="nazwa_procesu"
-        value="{{proces[1]}}"
+        value="{{proces.nazwa_procesu}}"
       />
     </div>
     <div class="col-md-3">
       <label for="pracownik" class="form-label">PRACOWANIK</label>
       <select id="pracownik" class="form-select" name="pracownik">
-        <option selected>WYBIERZ</option>
+        <option selected>{{przypisany_pracownik}}</option>
         {% for pracownik in lista_pracownikow %}
-
         <option>{{pracownik}}</option>
         {% endfor %}
       </select>
@@ -30,6 +30,7 @@
         class="form-control"
         id="preferowanyCzasWykonania"
         name="preferowany_czas_wykonania"
+        value="{{proces.preferowany_czas_wykonania}}"
         min="1"
         step="1"
       />
@@ -42,7 +43,11 @@
         class="form-control"
         id="uwwagiKierownika"
         name="uwagi_kierownika"
-        placeholder="jakies uwagi"
+        {% if proces.uwagi_kier %}
+          value = "{{proces.uwagi_kier}}"
+        {% else %}
+          placeholder="Dodaj uwagę"
+        {% endif %}
       />
     </div>
 
@@ -55,7 +60,7 @@
         class="form-control"
         id="planowanaDataRozpoczecia"
         name="planowana_data_rozpoczecia"
-        placeholder="{{proces[3]}}"
+        value="{{proces.planowany_dzien_rozpoczecia}}"
       />
     </div>
 
@@ -66,6 +71,7 @@
         name="zapisz_zmiany"
         value="ZAPISZ ZMIANY"
       />
+      <a href="{{url_for('podglad_procesow')}}" class="btn btn-secondary">PODGLAD PROCESOW</a>
     </div>
   </form>
 </div>

@@ -25,11 +25,18 @@ tabelka_z_procesami(lista_procesow, id_tab) -%}
         <form method="post">
           <button
             type="submit"
+            name="zakoncz_{{pp[0]}}"
+            class="btn btn-sm btn-danger"
+          >
+            ZAKONCZ
+          </button> 
+          <button
+            type="submit"
             name="edytuj_{{pp[0]}}"
-            class="btn btn-sm btn-primary"
+            class="btn btn-sm btn-info"
           >
             EDYTUJ
-          </button>
+          </button>          
         </form>
       </td>
     </tr>
