@@ -275,26 +275,63 @@ def podglad_procesow():
         Procesy_Przydzielone.status == 0
     ).all()
 
+
+
     if request.method == "POST":
-        return redirect(url_for("edytuj_proces", pid=int(list(request.form.keys())[0].replace("edytuj_", ""))))
-    
+        
+        if "edytuj" in list(request.form.keys())[0]:
+            return redirect(url_for("edytuj_proces", pid=int(list(request.form.keys())[0].replace("edytuj_", ""))))
+        
+        if "zakoncz" in list(request.form.keys())[0]:
+            pp_zakoncz = mip_session.query(Procesy_Przydzielone).filter(
+                Procesy_Przydzielone.pid == int(list(request.form.keys())[0].replace("zakoncz_", ""))).first()
+            
+            if pp_zakoncz.uwagi_kier:
+                pp_zakoncz.uwagi_kier += f", ZAKONCZONO Z TABELI PROCESOW {dt.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            else:
+                pp_zakoncz.uwagi_kier = f", ZAKONCZONO Z TABELI PROCESOW {dt.now().strftime('%Y-%m-%d %H:%M:%S')}"
+
+            pp_zakoncz.zakoncz_proces()
+            mip_session.commit()
+
+            return redirect(url_for("podglad_procesow"))
+
     return render_template("podglad_procesow.html", pp_aktywne=pp_aktywne, pp_wstrzymane=pp_wstrzymane, pp_nierozpoczete=pp_nierozpoczete)
 
 
 @app.route("/edytuj_proces/<pid>", methods=["GET", "POST"])
 @login_required
-def edytuj_proces(pid):
-    
-    lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.rola.in_(("rozkroj", "agencja")))]
+def edytuj_proces(pid):   
 
-    proces = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
-        Procesy_Przydzielone.pid == pid).all()
+    proces = mip_session.query(Procesy_Przydzielone).filter(
+        Procesy_Przydzielone.pid == pid).first()
 
-    # if request.method == "POST":
-    #     proces.proces = proces
+    lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.uid != proces.uid, User.rola.in_(("rozkroj", "agencja")))]
+
+    if request.method == "POST":
+        
+        proces.nazwa_procesu = request.form['nazwa_procesu']
+        prac_uid = db.session.query(User.uid).filter(User.username == request.form['pracownik']).first()[0]
+      
+        proces.uid = prac_uid
+        proces.preferowany_czas_wykonania = int(request.form['preferowany_czas_wykonania'])
+        # if proces.uwagi_kier:
+        proces.uwagi_kier = request.form['uwagi_kierownika']
+        # print(type(request.form['uwagi_kierownika']))
+
+        proces.planowany_dzien_rozpoczecia = request.form['planowana_data_rozpoczecia']
+
+        # mip_session.add(proces)
+        mip_session.commit()
+
+        return redirect(url_for('podglad_procesow'))
 
 
-    return render_template("edytuj_proces.html", proces=[x for x in proces][0])
+    return render_template("edytuj_proces.html", 
+                           proces=proces,
+                           lista_pracownikow=lista_pracownikow, 
+                           przypisany_pracownik=db.session.query(User.username).filter(User.uid == proces.uid).first()[0]
+                           )
 
 @app.route("/dodaj_proces", methods=["GET", "POST"])
 def dodaj_proces(): 
