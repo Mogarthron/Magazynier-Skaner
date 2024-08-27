@@ -356,12 +356,27 @@ def dodaj_proces():
     
     return render_template("dodaj_proces.html", title="DODAJ PROCES", lista_procesow=lista_procesow, lista_pracownikow=lista_pracownikow)
 
-@app.route("/kontrola_czasu", methods=["GET", "POST"])
+@app.route("/kontrola_czasu/", methods=["GET", "POST"],  defaults={"id_proces": None})
+@app.route("/kontrola_czasu/<id_proces>", methods=["GET", "POST"])
 @login_required
-def kontrola_czasu():
-            
+def kontrola_czasu(id_proces=None):    
+    
+    if id_proces:
+        wybrany_proces = mip_session.query(Procesy.proces).filter(Procesy.pid == int(id_proces)).first()[0]
+    else:
+        wybrany_proces = "FILTRUJ PROCESY"
+    
+    procesy_lista = mip_session.query(Procesy.pid, Procesy.proces).all()
+
     if request.method == "POST":
-        print(request.form.keys())
+        
+        if 'filtruj_procesy' in list(request.form.keys()):
+            
+            print(request.form["filtruj_procesy"][0])
+
+            return redirect(url_for("kontrola_czasu", id_proces=request.form["filtruj_procesy"][0]))
+
+        
         if 'uwagiDoProcesu' in list(request.form.keys()):
 
             ppid = list(request.form.keys())[-1].split("_")[1]
@@ -383,9 +398,14 @@ def kontrola_czasu():
             elif akcja == "zakoncz":
                 zakonczenie_procesu(ppid)
              
-            return redirect(url_for("kontrola_czasu"))
+        return redirect(url_for("kontrola_czasu", id_proces=id_proces))
 
-    return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=odswierz_procesy())
+    return render_template("kontrola_czasu.html", 
+                           title="KONTROLA CZASU PRACY", 
+                           user_name=current_user.username, 
+                           procesy=odswierz_procesy(id_proces), 
+                           procesy_lista=procesy_lista, 
+                           wybrany_proces=wybrany_proces)
 
 
 
@@ -424,10 +444,18 @@ def zakonczenie_procesu(ppid):
 
     mip_session.commit()
 
-def odswierz_procesy():
+def odswierz_procesy(id_procesu=None):
+    
+    if id_procesu:
+        procesy_przydzielone_query = mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(
+                                Procesy_Przydzielone.proces == int(id_procesu), Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).all()
+    else:
+        procesy_przydzielone_query = mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(
+                                Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).all()
+        
     procesy_przydzielone = []
 
-    for pp in mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).all():
+    for pp in procesy_przydzielone_query:
         
         rozpoczete_procesy_w_toku = mip_session.query(Procesy_w_toku.ppid, Procesy_w_toku.czas_start, Procesy_w_toku.przerwij, Procesy_w_toku.zakoncz, Procesy_w_toku.uwagi_prac).filter(Procesy_w_toku.ppid == pp[0], Procesy_w_toku.zakoncz == None).all()
    
