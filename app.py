@@ -363,60 +363,66 @@ def kontrola_czasu():
     if request.method == "POST":
         print(request.form.keys())
         if 'uwagiDoProcesu' in list(request.form.keys()):
+
             ppid = list(request.form.keys())[-1].split("_")[1]
-
-            print(ppid, request.form["uwagiDoProcesu"])
-            uwaga = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
-
-            uwaga.uwagi_prac += f", {request.form['uwagiDoProcesu']}"
-            mip_session.commit()
-        
+            dodaj_uwage(ppid, request.form['uwagiDoProcesu'])
+                  
         else:
 
             akcja, ppid = list(request.form.keys())[0].split("_")
+
             if akcja == "start":
-             
-                mip_session.add(Procesy_w_toku(ppid=int(ppid)))
-                przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
-
-                przydzielony_porces.rozpocznij_proces()
-
-                mip_session.commit()
+                rozpoczecie_procesu(ppid)              
 
             elif akcja == "wznow":
-
-                mip_session.add(Procesy_w_toku(ppid=int(ppid)))
-                przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
-
-                przydzielony_porces.rozpocznij_proces()
-
-                mip_session.commit()
-
-
-            elif akcja == "przerwij":
-
-                przerwany_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
-                przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+                rozpoczecie_procesu(ppid)
                 
-                przerwany_proces.przerwij_proces()
-                przydzielony_porces.przerwij_proces()
-               
-                mip_session.commit()
+            elif akcja == "przerwij":
+                przerwanie_procesu(ppid)
 
             elif akcja == "zakoncz":
-
-                zakonczony_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
-                przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
-
-                zakonczony_proces.zakoncz_proces()
-                przydzielony_porces.zakoncz_proces()
-
-                mip_session.commit()
+                zakonczenie_procesu(ppid)
              
-            return redirect(url_for("kontrola_czasu"))#, title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=odswierz_procesy()))
+            return redirect(url_for("kontrola_czasu"))
 
     return render_template("kontrola_czasu.html", title="KONTROLA CZASU PRACY", user_name=current_user.username, procesy=odswierz_procesy())
 
+
+
+def dodaj_uwage(ppid, uwaga_text):
+    uwaga = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    uwaga.uwagi_prac += f", {uwaga_text}"
+    mip_session.commit()
+
+def rozpoczecie_procesu(ppid):
+    
+    mip_session.add(Procesy_w_toku(ppid=int(ppid)))
+    przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+
+    przydzielony_porces.rozpocznij_proces()
+
+    mip_session.commit()
+
+
+def przerwanie_procesu(ppid):
+     
+    przerwany_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+                
+    przerwany_proces.przerwij_proces()
+    przydzielony_porces.przerwij_proces()
+               
+    mip_session.commit()
+
+def zakonczenie_procesu(ppid):
+
+    zakonczony_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+
+    zakonczony_proces.zakoncz_proces()
+    przydzielony_porces.zakoncz_proces()
+
+    mip_session.commit()
 
 def odswierz_procesy():
     procesy_przydzielone = []
@@ -435,5 +441,4 @@ def odswierz_procesy():
             procesy_przydzielone.append(list(pp) + [None,None,None,None])
 
     return procesy_przydzielone
-
 
