@@ -3,48 +3,59 @@
 {% block content %}
 <div class="container">
     <h4>LISTA PROCESÓW W TOKU DLA {{user_name}}</h4>
-    <div class="row mb-3">       
-        <input id="wyszukajPoces" onkeyup="szukanieProcesu()" class="form-control " type="search" placeholder="WYSZUKAJ PROCES" aria-label="Search"> 
-</div>
+    <div class="row mb-3">
+        <form method="post" id="filtrujProcesyForm">
+            <select id="filtrujProcesy" class="form-select" name="filtruj_procesy" O>
+                <option selected>{{wybrany_proces}}</option>
+                {% for p in procesy_lista %}
+                <option value="{{p[0]}}">{{p[1]}}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    <div class="row mb-3">
+        <input id="wyszukajPoces" onkeyup="szukanieProcesu()" class="form-control " type="search"
+            placeholder="WYSZUKAJ PROCES" aria-label="Search">
+    </div>
     <div class="row mb-3 overflow-scroll" style="height: 450px;">
-    <!-- <div class="row mb-3"> -->
+        <!-- <div class="row mb-3"> -->
         <ul class="list-group" id="listaProcesow">
             {% for i in procesy %}
             <li class="list-group-item">
                 <div class="card mb-3">
                     <div class="card-body">
-                                       
-                        <h5 class="card-title">{{i[1]}}</h5> 
-        
+
+                        <h5 class="card-title">{{i[1]}}</h5>
+
                         <div class="container">
                             <div class="row">
-        
+
                                 <div class="col">
                                     <form method="post" class="form-action">
-                                        {% if i[2] > 0 and i[2] != 2 %}                                
-                                        <button type="submit" name="start_{{i[0]}}"
-                                            class="btn btn-success btn-lg" disabled>Start</button>
-                                        {% elif i[2] == 2  %}
+                                        {% if i[2] > 0 and i[2] != 2 %}
+                                        <button type="submit" name="start_{{i[0]}}" class="btn btn-success btn-lg"
+                                            disabled>Start</button>
+                                        {% elif i[2] == 2 %}
                                         <button type="submit" name="wznow_{{i[0]}}"
                                             class="btn btn-success btn-lg">Wznow</button>
-        
-                                        {% else %}                                
+
+                                        {% else %}
                                         <button type="submit" name="start_{{i[0]}}"
-                                        class="btn btn-success btn-lg">Start</button>
+                                            class="btn btn-success btn-lg">Start</button>
                                         {% endif %}
                                     </form>
                                 </div>
-        
-        
+
+
                                 <div class="col">
                                     <form method="post" class="form-action">
                                         {% if i[2] == 1 %}
                                         <button type="submit" name="przerwij_{{i[0]}}"
                                             class="btn btn-warning btn-lg">Przerwij</button>
-                                            {% else %}                                
-                                            <button type="submit" name="przerwij_{{i[0]}}"
-                                            class="btn btn-warning btn-lg" disabled>Przerwij</button>
-                                            {% endif %}
+                                        {% else %}
+                                        <button type="submit" name="przerwij_{{i[0]}}" class="btn btn-warning btn-lg"
+                                            disabled>Przerwij</button>
+                                        {% endif %}
                                     </form>
                                 </div>
                             </div>
@@ -54,70 +65,69 @@
                                     <form method="post" class="form-action">
                                         {% if i[2] == 1 %}
                                         <button type="submit" name="zakoncz_{{i[0]}}"
-                                        class="btn btn-danger btn-lg ">Zakoncz</button>
-                                            {% else %}                                
-                                            <button type="submit" name="zakoncz_{{i[0]}}"
-                                            class="btn btn-danger btn-lg " disabled>Zakoncz</button>
-                                            {% endif %}
-                                   
+                                            class="btn btn-danger btn-lg ">Zakoncz</button>
+                                        {% else %}
+                                        <button type="submit" name="zakoncz_{{i[0]}}" class="btn btn-danger btn-lg "
+                                            disabled>Zakoncz</button>
+                                        {% endif %}
+
                                     </form>
                                 </div>
-        
-                                <div class="col">      
-                                    {% if i[2] > 0%}                            
+
+                                <div class="col">
+                                    {% if i[2] > 0%}
                                     <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal"
                                         data-bs-target="#uwagiPracownika" data-bs-whatever="{{user_name}}_{{i[0]}}">
                                         UWAGI
-                                    </button>    
+                                    </button>
                                     {% else %}
-                                    
+
                                     <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" disabled>
                                         UWAGI
-                                    </button>   
-                                    
-                                    {% endif %}                
-                                    
+                                    </button>
+
+                                    {% endif %}
+
                                 </div>
-        
+
                             </div>
                         </div>
                     </div>
                 </div>
-    
-    
+
+
             </li>
             {% endfor %}
         </ul>
-        
-        
-       
+
+
+
     </div>
 
-    
-    <div class="modal fade" id="uwagiPracownika" tabindex="-1"
-    aria-labelledby="uwagiPracownikaLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="uwagiPracownikaLabel">Uwagi do procesu</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="post">
-                    <label for="uwagiDoProcesu" class="col-form-label">Wpisz uwagi do procesu</label>
-                    <textarea class="form-control" name="uwagiDoProcesu"></textarea>
-                    <input type="submit" id="zapiszUwage" class="btn btn-lg" name="zapiszUwagiDoProcesu_ppid"></input>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
-                    data-bs-dismiss="modal">Close</button>
-                
+
+    <div class="modal fade" id="uwagiPracownika" tabindex="-1" aria-labelledby="uwagiPracownikaLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uwagiPracownikaLabel">Uwagi do procesu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post">
+                        <label for="uwagiDoProcesu" class="col-form-label">Wpisz uwagi do procesu</label>
+                        <textarea class="form-control" name="uwagiDoProcesu"></textarea>
+                        <input type="submit" id="zapiszUwage" class="btn btn-lg"
+                            name="zapiszUwagiDoProcesu_ppid"></input>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                </div>
             </div>
         </div>
     </div>
-</div>
     <div class="row">
         <hr>
         <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
@@ -126,39 +136,18 @@
     </div>
 </div>
 
+
+
 <script>
-// document.addEventListener('DOMContentLoaded', function() {
-//     const forms = document.querySelectorAll('.form-action');
-
-//     forms.forEach(function(form) {
-//         form.addEventListener('submit', function(event) {
-//             event.preventDefault(); // Zapobiega przeładowaniu strony
-
-//             const formData = new FormData(form);
-//             const actionUrl = form.getAttribute('action') || window.location.href;
-
-//             fetch(actionUrl, {
-//                 method: 'POST',
-//                 body: formData
-//             })
-//             .then(response => response.json())
-//             .then(data => {
-//                 if (data.status === "success") {
-//                     console.log(data.message);
-//                     // Tutaj możesz zaktualizować UI na podstawie odpowiedzi, np. zmieniać stan przycisków
-//                 } else {
-//                     console.error(data.message);
-//                     // Tutaj możesz pokazać komunikat błędu użytkownikowi
-//                 }
-//             })
-//             .catch(error => console.error('Error:', error));
-//         });
-//     });
-// });
+    document.getElementById('filtrujProcesy').addEventListener('change', function () {
+        document.getElementById('filtrujProcesyForm').submit();
+    });
 </script>
 
+
+
 <script src="{{url_for('static', filename='kontrola_czasu.js')}}">
-  
+
 </script>
 
 {% endblock %}
