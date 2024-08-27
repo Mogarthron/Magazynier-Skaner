@@ -16,7 +16,7 @@ url_obj = URL.create("mysql+mysqlconnector",
                      database=mip_url["database"]
                      )
 
-mip_engine = create_engine(url_obj, echo=False)
+mip_engine = create_engine(url_obj, echo=False, pool_pre_ping=True)
 
 # mip_engine = create_engine("sqlite:///BAZA_MIP.db", echo=False)
 
