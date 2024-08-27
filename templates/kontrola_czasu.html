@@ -20,7 +20,7 @@
                             <div class="row">
         
                                 <div class="col">
-                                    <form method="post">
+                                    <form method="post" class="form-action">
                                         {% if i[2] > 0 and i[2] != 2 %}                                
                                         <button type="submit" name="start_{{i[0]}}"
                                             class="btn btn-success btn-lg" disabled>Start</button>
@@ -37,7 +37,7 @@
         
         
                                 <div class="col">
-                                    <form method="post">
+                                    <form method="post" class="form-action">
                                         {% if i[2] == 1 %}
                                         <button type="submit" name="przerwij_{{i[0]}}"
                                             class="btn btn-warning btn-lg">Przerwij</button>
@@ -51,7 +51,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col">
-                                    <form method="post">
+                                    <form method="post" class="form-action">
                                         {% if i[2] == 1 %}
                                         <button type="submit" name="zakoncz_{{i[0]}}"
                                         class="btn btn-danger btn-lg ">Zakoncz</button>
@@ -126,7 +126,36 @@
     </div>
 </div>
 
+<script>
+// document.addEventListener('DOMContentLoaded', function() {
+//     const forms = document.querySelectorAll('.form-action');
 
+//     forms.forEach(function(form) {
+//         form.addEventListener('submit', function(event) {
+//             event.preventDefault(); // Zapobiega przeładowaniu strony
+
+//             const formData = new FormData(form);
+//             const actionUrl = form.getAttribute('action') || window.location.href;
+
+//             fetch(actionUrl, {
+//                 method: 'POST',
+//                 body: formData
+//             })
+//             .then(response => response.json())
+//             .then(data => {
+//                 if (data.status === "success") {
+//                     console.log(data.message);
+//                     // Tutaj możesz zaktualizować UI na podstawie odpowiedzi, np. zmieniać stan przycisków
+//                 } else {
+//                     console.error(data.message);
+//                     // Tutaj możesz pokazać komunikat błędu użytkownikowi
+//                 }
+//             })
+//             .catch(error => console.error('Error:', error));
+//         });
+//     });
+// });
+</script>
 
 <script src="{{url_for('static', filename='kontrola_czasu.js')}}">
   
