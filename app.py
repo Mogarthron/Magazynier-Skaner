@@ -126,19 +126,32 @@ def kod_wozka():
             return jsonify({"error": "Brak pliku obrazu"}), 400        
         
         ## requesty obsługiwane przez javascript!!!!!!
-        print(dt.now(), request.form.keys())
-        
-        numer_wozka = odczyt_numeru(request, current_user.username)
-
-        if mip_session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():
+       
+        try:
+            numer_wozka = odczyt_numeru(request, current_user.username)
            
-            redirect_url = url_for('zabierz_przesun_wozek', numer_wozka=numer_wozka.replace("/", "_"))
-            return jsonify({"redirect_url": redirect_url}), 200
-        
-        else: 
+            if mip_session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():           
+                redirect_url = url_for('zabierz_przesun_wozek', numer_wozka=numer_wozka.replace("/", "_"))
+                return jsonify({"redirect_url": redirect_url}), 200
+            
+            else:
+                redirect_url = url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_"))
+                return jsonify({"redirect_url": redirect_url}), 200
+            
+        except:
+            numer_wozka = "BRAK NUMERU"
+            
 
             redirect_url = url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_"))
             return jsonify({"redirect_url": redirect_url}), 200
+
+        # if mip_session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():           
+        #     redirect_url = url_for('zabierz_przesun_wozek', numer_wozka=numer_wozka.replace("/", "_"))
+        #     return jsonify({"redirect_url": redirect_url}), 200
+        
+        # else: 
+        #     redirect_url = url_for('kod_miejsca', numer_wozka=numer_wozka.replace("/", "_"))
+        #     return jsonify({"redirect_url": redirect_url}), 200
     
     else:
      
