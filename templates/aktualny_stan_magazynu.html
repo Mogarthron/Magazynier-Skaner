@@ -16,16 +16,16 @@
             <thead>
                 <tr>
                     <th>KOMISJA</th>
-                    <th>MAGAZYN</th>
                     <th>MIEJSCE</th>
+                    <th>MAGAZYN</th>
                 </tr>
             </thead>
             <tbody>
                 {% for p in stan_magazynu %}
                 <tr>
                     <td>{{p.nr_wozka}}</td>
-                    <td>{{p.miejsce.split('.')[0]}}</td>
                     <td>{{p.miejsce.split('.')[1]}}</td>
+                    <td>{{p.miejsce.split('.')[0]}}</td>
                 </tr>
             {% endfor %}
             </tbody>
