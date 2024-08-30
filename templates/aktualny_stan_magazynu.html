@@ -1,62 +1,35 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!-- <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        Dropdown
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                </li>
-            </ul>
-            <form class="d-flex">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-        </div>
-    </div>
-</nav> -->
 <div class="container">
 
     <h2>AKTUALNY STAN MAGAZYNU</h2>
     <hr>
     <div class="row mb-3">       
-            <input id="wyszukajWozek" onkeyup="szukanieNrWozka()" class="form-control " type="search" placeholder="WYSZUKAJ WOZEK" aria-label="Search"> 
+            <input id="wyszukajWozek" onkeyup="szukaniePozycji('wyszukajWozek', 'listaWozkow')" class="form-control " type="search" placeholder="WYSZUKAJ WOZEK" aria-label="Search"> 
     </div>
     <hr>
     <h3>LISTA DOSTEPNYCH WOZKOW</h3>
     <div class="row mb-3 overflow-scroll" style="height: 150px;">
-        <ul class="list-group" id="listaWozkow">
-
-            {% for p in stan_magazynu %}
-            <li class="list-group-item">{{p.nr_wozka}}, {{p.miejsce}}</li>
+      
+        <table id="listaWozkow" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>KOMISJA</th>
+                    <th>MAGAZYN</th>
+                    <th>MIEJSCE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in stan_magazynu %}
+                <tr>
+                    <td>{{p.nr_wozka}}</td>
+                    <td>{{p.miejsce.split('.')[0]}}</td>
+                    <td>{{p.miejsce.split('.')[1]}}</td>
+                </tr>
             {% endfor %}
-        </ul>
+            </tbody>
+        </table>
 
     </div>
 
@@ -91,5 +64,31 @@
         }
       }
     }
+
+    function szukaniePozycji(inName, tabName) {
+    // Deklaracja zmiennych
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById(inName);
+    filter = input.value.toUpperCase();
+    table = document.getElementById(tabName);
+    tr = table.getElementsByTagName("tr");
+
+    // Przeszukiwanie wierszy tabeli i ukrywanie tych, które nie pasują do zapytania
+    for (i = 1; i < tr.length; i++) {
+      // zaczynamy od 1, aby pominąć nagłówki tabeli
+      tr[i].style.display = "none"; // Domyślnie ukrywamy wszystkie wiersze
+      td = tr[i].getElementsByTagName("td");
+      for (var j = 0; j < td.length; j++) {
+        // Sprawdzamy każdą komórkę w wierszu
+        if (td[j]) {
+          txtValue = td[j].textContent || td[j].innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = ""; // Jeśli pasuje, pokazujemy wiersz
+            break; // Przerywamy pętlę po znalezieniu dopasowania
+          }
+        }
+      }
+    }
+  }
     </script>
 {% endblock %}
