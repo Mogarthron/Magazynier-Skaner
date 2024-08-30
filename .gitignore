@@ -165,3 +165,5 @@ static/rout_url.json
 static/*.jpg
 config.json
 BAZA_MIP.db
+testy.ipynb
+*.xlsx
