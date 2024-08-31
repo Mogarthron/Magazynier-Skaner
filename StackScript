@@ -1,7 +1,10 @@
 #!/bin/bash
 apt update -y
-
-apt -y install git python3-pip
-
+apt -y install git python3-pip python3-venv python3-dev libopencv-dev libgtk-3-dev libzbar0 
 git clone https://github.com/Mogarthron/Magazynier-Skaner.git
-pip3 install -r ./Magazynier-Skaner/requirements.txt
+cd Magazynier-Skaner
+python3 venv .venv
+source .venv/bin/activate
+pip install --upgrade pip setuptools wheel
+pip install -r ./Magazynier-Skaner/requirements-linux.txt
+python create_mip.py
