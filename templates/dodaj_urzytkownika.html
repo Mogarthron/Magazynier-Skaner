@@ -13,6 +13,9 @@
                 PANEL DODAWANIE URZTKOWIKOW DO BAZY
             </h2>
         </div>
+        {% if urzytkownik_istnieje %}
+        <p>Urztkownik {{urzytkownik_istnieje}} jest już w bazie</p>
+        {% endif %}
         <div class="row">
                 
     <form method="post">

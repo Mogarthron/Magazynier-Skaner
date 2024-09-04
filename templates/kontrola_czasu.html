@@ -8,7 +8,7 @@
             <select id="filtrujProcesy" class="form-select" name="filtruj_procesy" O>
                 <option selected>{{wybrany_proces}}</option>
                 {% for p in procesy_lista %}
-                <option value="{{p[0]}}">{{p[1]}}</option>
+                <option value="{{p[0]}}">{{p[2]}}, {{p[1]}}</option>
                 {% endfor %}
             </select>
         </form>
