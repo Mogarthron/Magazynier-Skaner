@@ -91,32 +91,37 @@ def login():
             login_user(user)
             return render_template("index.html")
         else:
-            return "FILED!!!!!!!"
+            return redirect(url_for("login"))
 
 @app.route("/logout")
 def logout():
     logout_user()
     return render_template("index.html")
 
-# @app.route("/dodaj_urzytkownika/<tajne_haslo>", methods=["POST", "GET"])
-# def dodaj_urzytkownika(tajne_haslo):
+@app.route("/dodaj_urzytkownika/", methods=["POST", "GET"])
+@login_required
+def dodaj_urzytkownika():
 
-#     if tajne_haslo == "TAJNE_HASLO" and request.method == "POST":
-#         user = request.form.getlist('userName')[0]
-#         rola = request.form.getlist('userRole')[0]
-#         haslo = request.form.getlist('haslo')[0]
+    if current_user.rola == "admin":
 
-       
-#         new_user = User(user, rola, haslo)
-#         db.session.add(new_user)
-#         db.session.commit()
+
+        if request.method == "POST":
+            user = request.form.getlist('userName')[0]
+            rola = request.form.getlist('userRole')[0]
+            haslo = request.form.getlist('haslo')[0]
+
+            if db.session(User).filter(User.username == user):
+                return render_template("dodaj_urzytkownika.html", urzytkownik_istnieje = user)
+            else:
+                new_user = User(user, rola, haslo)
+                db.session.add(new_user)
+                db.session.commit()
+        
+            return render_template("dodaj_urzytkownika.html", urzytkownik_istnieje = False)
     
-#         return render_template("dodaj_urzytkownika.html")
-    
-#     if tajne_haslo == "LISTA":
-#         return render_template("dodaj_urzytkownika.html", lista=db.session.query(User).all())
+    else:
+        return redirect(url_for("index"))
 
-#     return render_template("dodaj_urzytkownika.html")
 
 @app.route("/kod_wozka", methods=["GET","POST"])
 @login_required
@@ -240,7 +245,7 @@ def kod_miejsca(numer_wozka):
         elif "miejsce_wozek" in list(request.form.keys()):
             # print("miejsc wózek!!!!", request.form.keys())
 
-            sant_mag = Stan_Mag(request.form.get('nurmerWozka'), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
+            sant_mag = Stan_Mag(request.form.get('nurmerWozka').replace("_", "/"), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
             mip_session.add(sant_mag)
             mip_session.commit()
 
@@ -358,8 +363,16 @@ def dodaj_proces():
         
         uid = db.session.query(User.uid, User.username).filter(User.username == request.form["pracownik"]).first()[0] 
         proces_id = mip_session.query(Procesy.pid).filter(Procesy.proces == request.form["proces"]).first()[0]
+
+
+        try:
+            pre_czas_wyk = int(request.form["preferowany_czas_wykonania"])
+        except:
+            pre_czas_wyk = 10
+
+
         pp = Procesy_Przydzielone(uid, current_user.uid, proces_id, request.form["nazwa_procesu"], request.form["planowana_data_rozpoczecia"], 
-                                  int(request.form["preferowany_czas_wykonania"]))
+                                  pre_czas_wyk)
         mip_session.add(pp)
         mip_session.commit()
 
@@ -379,7 +392,9 @@ def kontrola_czasu(id_proces=None):
     else:
         wybrany_proces = "FILTRUJ PROCESY"
     
-    procesy_lista = mip_session.query(Procesy.pid, Procesy.proces).all()
+    procesy_lista = mip_session.query(Procesy.pid, Procesy.proces, Procesy.numer_procesu).all()
+
+    print(procesy_lista)
 
     if request.method == "POST":
         
