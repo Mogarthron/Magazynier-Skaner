@@ -258,19 +258,6 @@ def kod_miejsca(numer_wozka):
         return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca="JESZCZE NIE WYBRANO")
 
 
-
-@app.route("/magazyn_wozkow")
-def magazyn_wozkow():
-
-    rozklad_magazynu = [
-        ["1"]+ ["" for x in range(8)],
-        ["2"]+ ["", "", "", "", "AVA/111222", "","",""],
-        ["3"]+ ["" for x in range(8)],
-    ]
-
-    return render_template("magazyn_wozkow.html", rozklad_magazynu=rozklad_magazynu)
-
-
 @app.route("/podsumowanie_procesow", methods=["GET", "POST"])
 @login_required
 def podsumowanie_procesow():
