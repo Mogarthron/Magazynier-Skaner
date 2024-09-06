@@ -414,7 +414,7 @@ def podsumowanie_procesow():
     df_pwt["_stop"] = df_pwt.apply(lambda x: przydziel_czas(x.przerwij, x.zakoncz), axis=1)
     df_pwt["czas_czastkowy"] = df_pwt.apply(lambda x: oblicz_czas(x.czas_start, x._stop), axis=1)
     
-    df_pwt_gb = df_pwt.groupby(["nazwa_procesu", "uid"]).agg(
+    df_pwt_gb = df_pwt.groupby(["nr_procesu", "nazwa_procesu", "uid"]).agg(
     {"czas_start":"min", "_stop":"max", "czas_czastkowy": "sum", "ppid":"count"}
     ).rename(
         columns={"ppid": "ILOSC_PRZERW", "_stop": "CZAS_STOP", "czas_czastkowy":"CZAS_TRWANIA_PROCESU", "czas_start": "CZAS_START"}).reset_index()
