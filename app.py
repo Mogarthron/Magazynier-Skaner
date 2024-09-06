@@ -235,8 +235,9 @@ def kod_miejsca(numer_wozka):
         if "zaladuj_miejsce" in list(request.form.keys())[0]:
             if 'camera_image' not in request.files:            
                 return jsonify({"error": "Brak pliku obrazu"}), 400
-            
-            kod_miejsca = odczyt_numeru(request, current_user.username)
+           
+            kod_miejsca = odczyt_numeru(request, current_user.username)              
+
             numer_wozka = numer_wozka.replace("_", "/")
             print("odczyt danych:", numer_wozka,  kod_miejsca)
         
@@ -262,7 +263,10 @@ def kod_miejsca(numer_wozka):
 @login_required
 def podsumowanie_procesow():
 
-    return render_template("podsumowanie_procesow.html")
+    pwt = mip_session.query(Procesy_w_toku).order_by(Procesy_w_toku.ppid).all()
+    
+
+    return render_template("podsumowanie_procesow.html", procesy_w_toku = list(pwt))
 
 @app.route("/podglad_procesow", methods=["GET", "POST"])
 @login_required
