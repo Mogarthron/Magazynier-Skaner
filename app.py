@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from flask_login import UserMixin, LoginManager, login_user, logout_user, current_user, login_required
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from konwertuj_img_na_text import odczyt_numeru
 from baza_mip.models import *
+import pandas as pd
+
 
 app = Flask(__name__, template_folder="templates")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./appdb.db"
@@ -259,14 +261,167 @@ def kod_miejsca(numer_wozka):
         return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca="JESZCZE NIE WYBRANO")
 
 
+def oblicz_czas(start, stop):
+    """zwraca czas w minutach"""
+
+    if stop.day == start.day:
+    
+        dziesiata =  dt(stop.year, stop.month, stop.day, 10)
+        trzynasta =  dt(stop.year, stop.month, stop.day, 13)
+    
+        if stop <= dziesiata and start <= dziesiata:
+            czas_pracy = (stop - start).seconds/60
+            return czas_pracy
+        
+        if (stop > dziesiata and stop <= trzynasta) and (start > dziesiata and start <= trzynasta):
+            czas_pracy = (stop - start).seconds/60
+            return czas_pracy
+        
+        if (stop > trzynasta and start > trzynasta):
+            czas_pracy = (stop - start).seconds/60
+            return czas_pracy
+        
+        if start < dziesiata and stop >dziesiata and stop < trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=15)).seconds/60
+            return czas_pracy
+        
+        if start < dziesiata and stop >= trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=30)).seconds/60
+            return czas_pracy
+        
+        if start > dziesiata and start < trzynasta and stop >= trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=15)).seconds/60
+            return czas_pracy
+  
+    if (stop.day - start.day) == 1:      
+        start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
+        start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
+        stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
+        stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
+
+        if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
+            return czas_pracy
+        
+        if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15, minutes=45)).seconds/60
+            return czas_pracy
+        
+        if start >= start_trzynasta and stop < stop_dziesiata:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
+            return czas_pracy
+        
+        if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
+            return czas_pracy
+
+        if start >= start_trzynasta and stop > stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15, minutes=45)).seconds/60
+            return czas_pracy
+
+        return 111111
+    
+    if (stop.day - start.day) > 1 and (stop.day - start.day) < 3:
+
+        start_siudma = dt(start.year, start.month, start.day, 7, 0) 
+        start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
+        start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
+        stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
+        stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
+
+        if start >= start_siudma and start < start_dziesiata and stop < stop_dziesiata:
+            czas_pracy = (stop - start - timedelta(minutes=30)*2 - timedelta(hours=15+48, minutes=45)).seconds/60
+            return czas_pracy
+
+        if start >= start_siudma and start < start_dziesiata and stop >= stop_dziesiata and stop < stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=15)*5 - timedelta(hours=15+48, minutes=45)).seconds/60
+            return czas_pracy
+
+        if start >= start_siudma and start < start_dziesiata and stop < stop_dziesiata:
+            czas_pracy = (stop - start - timedelta(minutes=30)*2 - timedelta(hours=15+48, minutes=45)).seconds/60
+            return czas_pracy
+
+        if start >= start_siudma and start < start_dziesiata and stop >= stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=15)*6 - timedelta(hours=15+48, minutes=45)).seconds/60
+            return czas_pracy
+
+        if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
+            return czas_pracy
+
+        if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15+48, minutes=45)).seconds/60
+            return czas_pracy
+        
+        if start >= start_trzynasta and stop < stop_dziesiata:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
+            return czas_pracy
+        
+        if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
+            return czas_pracy
+
+        return 222222
+
+    if (stop.day - start.day) == 3:
+
+        start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
+        start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
+        stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
+        stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
+
+        if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
+            return czas_pracy
+        
+        if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15+72, minutes=45)).seconds/60
+            return czas_pracy
+        
+        if start >= start_trzynasta and stop < stop_dziesiata:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
+            return czas_pracy
+        
+        if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
+            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
+            return czas_pracy
+        return 333333
+    return 999999
+
 @app.route("/podsumowanie_procesow", methods=["GET", "POST"])
 @login_required
 def podsumowanie_procesow():
 
-    pwt = mip_session.query(Procesy_w_toku).order_by(Procesy_w_toku.ppid).all()
+    pwt = mip_session.query(Procesy_w_toku.ppid, 
+                            Procesy_Przydzielone.uid, 
+                            Procesy.numer_procesu, 
+                            Procesy_Przydzielone.nazwa_procesu, 
+                            Procesy_w_toku.czas_start, 
+                            Procesy_w_toku.przerwij, 
+                            Procesy_w_toku.zakoncz).join(
+    Procesy_Przydzielone, Procesy_Przydzielone.pid == Procesy_w_toku.ppid).join(Procesy, Procesy.pid == Procesy_Przydzielone.proces).filter(Procesy_Przydzielone.status == 3).order_by(Procesy_w_toku.ppid).all()
     
+    df_pwt = pd.DataFrame(pwt)
+    df_pwt["czas_start"] = pd.to_datetime(df_pwt["czas_start"], format="%Y-%m-%d %H:%M:%S")
+    df_pwt["przerwij"] = pd.to_datetime(df_pwt["przerwij"], format="%Y-%m-%d %H:%M:%S")
+    df_pwt["zakoncz"] = pd.to_datetime(df_pwt["zakoncz"], format="%Y-%m-%d %H:%M:%S")
 
-    return render_template("podsumowanie_procesow.html", procesy_w_toku = list(pwt))
+    def przydziel_czas(przerwij, zakoncz):
+        if pd.isna(przerwij):
+            return zakoncz
+        return przerwij
+
+    df_pwt["_stop"] = df_pwt.apply(lambda x: przydziel_czas(x.przerwij, x.zakoncz), axis=1)
+    df_pwt["czas_czastkowy"] = df_pwt.apply(lambda x: oblicz_czas(x.czas_start, x._stop), axis=1)
+    
+    df_pwt_gb = df_pwt.groupby(["nazwa_procesu", "uid"]).agg(
+    {"czas_start":"min", "_stop":"max", "czas_czastkowy": "sum", "ppid":"count"}
+    ).rename(
+        columns={"ppid": "ILOSC_PRZERW", "_stop": "CZAS_STOP", "czas_czastkowy":"CZAS_TRWANIA_PROCESU", "czas_start": "CZAS_START"}).reset_index()
+
+    df_pwt_gb["CZAS_CALOWITY"] = df_pwt_gb.apply(lambda x: oblicz_czas(x.CZAS_START, x.CZAS_STOP), axis=1)
+
+    return render_template("podsumowanie_procesow.html", procesy_w_toku = df_pwt_gb.round(2))
 
 @app.route("/podglad_procesow", methods=["GET", "POST"])
 @login_required
@@ -489,3 +644,7 @@ def odswierz_procesy(id_procesu=None):
 
     return procesy_przydzielone
 
+@app.route("/pobierz_stan_mag", methods=["GET", "POST"])
+@login_required 
+def pobierze_stan_mag():
+    pass
