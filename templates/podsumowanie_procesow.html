@@ -1,15 +1,37 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container-fluid">
-  <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button"
-    >STRONA STARTOWA</a
-  >
-  <a
-    href="{{url_for('podglad_procesow')}}"
-    class="btn btn-lg btn-primary"
-    role="button"
-    >PODGLAD PROCESOW</a
-  >
-
+  <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
+  <a href="{{url_for('podglad_procesow')}}" class="btn btn-lg btn-primary" role="button">PODGLAD PROCESOW</a>
   <hr />
+  <div class="container">
+
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <td>ppid</td>
+          <td>czas_start</td>
+          <td>przerwij</td>
+          <td>czas stop</td>
+          <td>uwagi</td>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pwt in procesy_w_toku %}
+        <tr>
+          <td>{{pwt.ppid}}</td>
+          <td>{{pwt.czas_start}}</td>
+          <td>{{pwt.przerwij}}</td>
+          <td>{{pwt.zakoncz}}</td>
+          <td>{{pwt.uwagi}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+
+
+
+  </div>
 </div>
 {% endblock %}

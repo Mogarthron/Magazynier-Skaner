@@ -13,7 +13,10 @@
       <label for="camera_image" class="form-label form-control-lg">ZESKANUJ KOD MIEJSCA</label>     
       <input class="form-control" type="file" name="camera_image" accept="image/*" capture="camera">
       <hr>
-      <input class="btn btn-primary" type="submit" name="zaladuj_miejsce" value="Zładuj kod meiejsca">
+      <input class="btn btn-primary " type="submit" name="zaladuj_miejsce" value="Zładuj kod meiejsca">
+      {% if  numer_wozka == "BRAK NUMERU"%}
+      <a href="{{url_for('kod_wozka')}}" class="btn btn-primary ms-5" role="button">Powtorz kod wózka</a> 
+      {% endif %}
     </form>
 
     <!-- <form method="post" enctype="multipart/form-data">
