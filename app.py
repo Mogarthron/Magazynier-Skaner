@@ -648,3 +648,10 @@ def odswierz_procesy(id_procesu=None):
 @login_required 
 def pobierze_stan_mag():
     pass
+
+
+@app.route("/skaner_qr")
+def skaner_qr():
+
+    
+    return render_template("skaner_qr.html")
