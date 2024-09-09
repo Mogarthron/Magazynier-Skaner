@@ -1,5 +1,5 @@
 from app import db
-from sqlalchemy import Column, String, Integer, Numeric, SmallInteger, Boolean, Float, DateTime
+from sqlalchemy import String, Integer, Numeric, SmallInteger, Boolean, Float, DateTime
 from datetime import datetime as dt
 from sqlalchemy import select
 
@@ -8,11 +8,11 @@ from flask_login import UserMixin
 class User(db.Model, UserMixin):
     __tablename__ = "users"
 
-    uid = Column(Integer, primary_key=True)
-    username = Column(String(128), nullable=False)
-    haslo = Column(String, nullable=False)
-    rola =  Column(String, nullable=True)
-    nr_prac = Column(Integer)
+    uid = db.Column(Integer, primary_key=True)
+    username = db.Column(String(128), nullable=False)
+    haslo = db.Column(String, nullable=False)
+    rola =  db.Column(String, nullable=True)
+    nr_prac = db.Column(Integer)
 
     def __init__(self, username, rola, haslo):
         self.username = username
@@ -28,26 +28,26 @@ class User(db.Model, UserMixin):
 class Dostepy(db.Model):
     __tablename__ = "dostepy"
 
-    did = Column(Integer, primary_key=True)
-    uid = Column(Integer)
-    aktualny_stan_magazynu = Column(Integer, default=0)
-    magazyn_wozkow = Column(Integer, default=0)
-    odczyt_kod_miejsca = Column(Integer, default=0)
-    odczyt_kod_wozka = Column(Integer, default=0)
-    zabierz_przesun_wozek = Column(Integer, default=0)
-    kontrola_czasu = Column(Integer, default=0)
-    dodaj_proces = Column(Integer, default=0)
+    did = db.Column(Integer, primary_key=True)
+    uid = db.Column(Integer)
+    aktualny_stan_magazynu = db.Column(Integer, default=0)
+    magazyn_wozkow = db.Column(Integer, default=0)
+    odczyt_kod_miejsca = db.Column(Integer, default=0)
+    odczyt_kod_wozka = db.Column(Integer, default=0)
+    zabierz_przesun_wozek = db.Column(Integer, default=0)
+    kontrola_czasu = db.Column(Integer, default=0)
+    dodaj_proces = db.Column(Integer, default=0)
 
 class Stan_Mag(db.Model):
     __tablename__ = "stan_mag"
 
-    mid = Column("mid", Integer, primary_key=True, autoincrement=True)
-    nr_wozka = Column("nr_wozka", String(10))
-    miejsce = Column("miejsce", String(10))
-    kto_wstawil = Column("kto_wstawil", Integer)
-    kto_zabral = Column("kto_zabral", Integer)
-    data_wstawienia = Column("data_wstawienia", String(19))
-    data_zabrania = Column("data_zabrania", String(19))
+    mid = db.Column("mid", Integer, primary_key=True, autoincrement=True)
+    nr_wozka = db.Column("nr_wozka", String(10))
+    miejsce = db.Column("miejsce", String(10))
+    kto_wstawil = db.Column("kto_wstawil", Integer)
+    kto_zabral = db.Column("kto_zabral", Integer)
+    data_wstawienia = db.Column("data_wstawienia", String(19))
+    data_zabrania = db.Column("data_zabrania", String(19))
 
     def __init__(self, nr_wozka, miejsce, username_uid, data):
         self.nr_wozka = nr_wozka
@@ -61,11 +61,11 @@ class Stan_Mag(db.Model):
 class Procesy(db.Model):
     __tablename__ = "procesy"
 
-    pid = Column("pid", Integer, primary_key=True, autoincrement=True)
-    proces = Column("proces", String(128))
-    preferowany_czas_trwania = Column("preferowany_czas_trwania", Integer)
-    opis = Column("opis", String(256))
-    numer_procesu = Column("numer_procesu", String(7))
+    pid = db.Column("pid", Integer, primary_key=True, autoincrement=True)
+    proces = db.Column("proces", String(128))
+    preferowany_czas_trwania = db.Column("preferowany_czas_trwania", Integer)
+    opis = db.Column("opis", String(256))
+    numer_procesu = db.Column("numer_procesu", String(7))
 
     def __init__(self, proces, preferowany_czas_trwania:int=None, opis=None, nr_procesu=None):
         self.proces = proces
@@ -79,18 +79,18 @@ class Procesy(db.Model):
 class Procesy_Przydzielone(db.Model):
     __tablename__ = "procesy_przydzielone"
 
-    pid = Column("pid", Integer, primary_key=True, autoincrement=True)
-    uid = Column("uid", Integer)
-    kid = Column("kid", Integer)
-    proces = Column("proces", Integer)
-    nazwa_procesu = Column("nazwa_procesu", String(128))
-    data_utworzenia = Column("data_utworzenia", String(19))
-    planowany_dzien_rozpoczecia = Column(String(10))    
-    priorytet = Column(Integer)
-    status = Column(Integer)
-    aktywna = Column(Integer)    
-    uwagi_kier = Column(String(512))
-    preferowany_czas_wykonania = Column(Integer)
+    pid = db.Column("pid", Integer, primary_key=True, autoincrement=True)
+    uid = db.Column("uid", Integer)
+    kid = db.Column("kid", Integer)
+    proces = db.Column("proces", Integer)
+    nazwa_procesu = db.Column("nazwa_procesu", String(128))
+    data_utworzenia = db.Column("data_utworzenia", String(19))
+    planowany_dzien_rozpoczecia = db.Column(String(10))    
+    priorytet = db.Column(Integer)
+    status = db.Column(Integer)
+    aktywna = db.Column(Integer)    
+    uwagi_kier = db.Column(String(512))
+    preferowany_czas_wykonania = db.Column(Integer)
 
     def __init__(self, uid:int, kid:int, proces:int, nazwa_procesu:str, planowany_dzien_rozpoczecia:str, preferowany_czas_wykonania:int=None):
         self.uid = uid
@@ -118,12 +118,12 @@ class Procesy_Przydzielone(db.Model):
 class Procesy_w_toku(db.Model):
     __tablename__ = "procesy_w_toku"
 
-    tid = Column("tid", Integer, primary_key=True, autoincrement=True)
-    ppid = Column("ppid", Integer)
-    czas_start = Column("czas_start", String(19))
-    przerwij = Column("przerwij", String(19))
-    zakoncz = Column("zakoncz", String(19))
-    uwagi_prac = Column("uwagi_pracownika", String(512))
+    tid = db.Column("tid", Integer, primary_key=True, autoincrement=True)
+    ppid = db.Column("ppid", Integer)
+    czas_start = db.Column("czas_start", String(19))
+    przerwij = db.Column("przerwij", String(19))
+    zakoncz = db.Column("zakoncz", String(19))
+    uwagi_prac = db.Column("uwagi_pracownika", String(512))
 
     def __init__(self, ppid):
         self.ppid = ppid
