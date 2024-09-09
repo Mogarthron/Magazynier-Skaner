@@ -1,13 +1,11 @@
-from baza_mip import *
-
+from app import db
 from sqlalchemy import Column, String, Integer, Numeric, SmallInteger, Boolean, Float, DateTime
 from datetime import datetime as dt
 from sqlalchemy import select
 
 from flask_login import UserMixin
 
-
-class User(Base, UserMixin):
+class User(db.Model, UserMixin):
     __tablename__ = "users"
 
     uid = Column(Integer, primary_key=True)
@@ -27,7 +25,7 @@ class User(Base, UserMixin):
     def __repr__(self):
         return f"<utowrzono: {self.username} z id {self.uid}, rola: {self.rola}>"
 
-class Dostepy(Base):
+class Dostepy(db.Model):
     __tablename__ = "dostepy"
 
     did = Column(Integer, primary_key=True)
@@ -40,11 +38,7 @@ class Dostepy(Base):
     kontrola_czasu = Column(Integer, default=0)
     dodaj_proces = Column(Integer, default=0)
 
-
-
-
-
-class Stan_Mag(Base):
+class Stan_Mag(db.Model):
     __tablename__ = "stan_mag"
 
     mid = Column("mid", Integer, primary_key=True, autoincrement=True)
@@ -64,7 +58,7 @@ class Stan_Mag(Base):
     def __repr__(self):
         return f"{self.data_wstawienia}| wstowiono wozek nr {self.nr_wozka}, na miejsce {self.miejsce}"
 
-class Procesy(Base):
+class Procesy(db.Model):
     __tablename__ = "procesy"
 
     pid = Column("pid", Integer, primary_key=True, autoincrement=True)
@@ -82,7 +76,7 @@ class Procesy(Base):
     def __repr__(self):
         return f"otowrzono{self.proces} o id:{self.pid}"
 
-class Procesy_Przydzielone(Base):
+class Procesy_Przydzielone(db.Model):
     __tablename__ = "procesy_przydzielone"
 
     pid = Column("pid", Integer, primary_key=True, autoincrement=True)
@@ -121,7 +115,7 @@ class Procesy_Przydzielone(Base):
 
 
 
-class Procesy_w_toku(Base):
+class Procesy_w_toku(db.Model):
     __tablename__ = "procesy_w_toku"
 
     tid = Column("tid", Integer, primary_key=True, autoincrement=True)

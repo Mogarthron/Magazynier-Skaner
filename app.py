@@ -1,59 +1,40 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
-from flask_login import UserMixin, LoginManager, login_user, logout_user, current_user, login_required
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from datetime import datetime as dt, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from konwertuj_img_na_text import odczyt_numeru
-from baza_mip.models import *
-import pandas as pd
 
+import pandas as pd
+from sqlalchemy import URL
+import json
+
+with open("config.json", "r") as c:
+    mip_url = json.load(c)["MIP_URL"]
+
+url_obj = URL.create("mysql+mysqlconnector",
+                     username=mip_url["username"],
+                     password=mip_url["password"],
+                     host=mip_url["host"],
+                     port=mip_url["port"],
+                     database=mip_url["database"]
+                     )
 
 app = Flask(__name__, template_folder="templates")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///./appdb.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = url_obj
 app.secret_key = "SUPER SECRET KEY"
 
 
 login_manager = LoginManager()
 login_manager.init_app(app=app)
 
+
 class Base(DeclarativeBase):
   pass
 
 db = SQLAlchemy(app, model_class=Base)
 
-class User(db.Model, UserMixin):
-    __tablename__ = "users"
-
-    uid = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, nullable=False)
-    haslo = db.Column(db.String, nullable=False)
-    rola =  db.Column(db.String, nullable=True)
-    nr_prac = db.Column(db.Integer)
-
-    def __init__(self, username, rola, haslo):
-        self.username = username
-        self.haslo = haslo
-        self.rola = rola
-
-    def get_id(self):
-        return self.uid
-
-    def __repr__(self):
-        return f"<utowrzono: {self.username} z id {self.uid}, rola: {self.rola}>"
-
-class Dostepy(db.Model):
-    __tablename__ = "dostepy"
-
-    did = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.Integer)
-    aktualny_stan_magazynu = db.Column(db.Integer, default=0)
-    magazyn_wozkow = db.Column(db.Integer, default=0)
-    odczyt_kod_miejsca = db.Column(db.Integer, default=0)
-    odczyt_kod_wozka = db.Column(db.Integer, default=0)
-    zabierz_przesun_wozek = db.Column(db.Integer, default=0)
-    kontrola_czasu = db.Column(db.Integer, default=0)
-    dodaj_proces = db.Column(db.Integer, default=0)
-    
+from baza_mip.models_db import *
 
 with app.app_context():
     db.create_all()
@@ -63,6 +44,7 @@ with app.app_context():
 def load_user(uid):
     
     return db.session.query(User).get(uid) 
+    # return mip_session.query(User).get(uid) 
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -73,7 +55,8 @@ def index():
 @app.route("/aktualny_stan_magazynu", methods=["GET", "POST"])
 def aktualny_stan_magazynu():
 
-    stan_magazynu = mip_session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
+    # stan_magazynu = mip_session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
+    stan_magazynu = db.session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
     
     return render_template("aktualny_stan_magazynu.html", stan_magazynu=stan_magazynu)
 
@@ -86,8 +69,10 @@ def login():
         username = request.form.get("userName")
         haslo = request.form.get("password")
 
-        # user = User.query.filter(User.username == username).first()        
+        
         user = db.session.query(User).filter(User.username == username).first()        
+        # user = mip_session.query(User).filter(User.username == username).first()        
+                
 
         if user.haslo == haslo:
             login_user(user)
@@ -137,7 +122,8 @@ def kod_wozka():
         try:
             numer_wozka = odczyt_numeru(request, current_user.username)
            
-            if mip_session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():           
+            # if mip_session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():           
+            if db.session.query(Stan_Mag).filter(Stan_Mag.nr_wozka == numer_wozka).all():           
                 redirect_url = url_for('zabierz_przesun_wozek', numer_wozka=numer_wozka.replace("/", "_"))
                 return jsonify({"redirect_url": redirect_url}), 200
             
@@ -169,26 +155,31 @@ def kod_wozka():
 def zabierz_przesun_wozek(numer_wozka):
     _numer_wozka = numer_wozka.replace("_","/")
   
-    kod_miejsca = mip_session.query(Stan_Mag.miejsce).filter(Stan_Mag.nr_wozka == _numer_wozka, Stan_Mag.data_zabrania == None).all()
+    # kod_miejsca = mip_session.query(Stan_Mag.miejsce).filter(Stan_Mag.nr_wozka == _numer_wozka, Stan_Mag.data_zabrania == None).all()
+    kod_miejsca = db.session.query(Stan_Mag.miejsce).filter(Stan_Mag.nr_wozka == _numer_wozka, Stan_Mag.data_zabrania == None).all()
          
  
     if request.method == "POST" and len(kod_miejsca) > 0:
-        id_wozka_w_bazie = mip_session.query(Stan_Mag.mid).filter(Stan_Mag.nr_wozka == _numer_wozka).all()[-1][0]
+        # id_wozka_w_bazie = mip_session.query(Stan_Mag.mid).filter(Stan_Mag.nr_wozka == _numer_wozka).all()[-1][0]
+        id_wozka_w_bazie = db.session.query(Stan_Mag.mid).filter(Stan_Mag.nr_wozka == _numer_wozka).all()[-1][0]
 
-        wozek = mip_session.query(Stan_Mag).get(id_wozka_w_bazie)
+        # wozek = mip_session.query(Stan_Mag).get(id_wozka_w_bazie)
+        wozek = db.session.query(Stan_Mag).get(id_wozka_w_bazie)
         wozek.kto_zabral = current_user.uid
         wozek.data_zabrania = dt.now().strftime("%Y-%m-%d %H:%M:%S")
         
         if "zabierz" in request.form.keys():
             
-            mip_session.commit()
+            # mip_session.commit()
+            db.session.commit()
 
             return redirect(url_for('kod_wozka'))
             
 
         if "przesun" in request.form.keys():
                                  
-            mip_session.commit()
+            # mip_session.commit()
+            db.session.commit()
 
             return redirect(url_for('kod_miejsca', numer_wozka=numer_wozka))        
         
@@ -249,8 +240,10 @@ def kod_miejsca(numer_wozka):
             # print("miejsc wózek!!!!", request.form.keys())
 
             sant_mag = Stan_Mag(request.form.get('nurmerWozka').replace("_", "/"), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
-            mip_session.add(sant_mag)
-            mip_session.commit()
+            # mip_session.add(sant_mag)
+            # mip_session.commit()
+            db.session.add(sant_mag)
+            db.session.commit()
 
             return redirect(url_for('kod_wozka'))
         
@@ -392,7 +385,8 @@ def oblicz_czas(start, stop):
 @login_required
 def podsumowanie_procesow():
 
-    pwt = mip_session.query(Procesy_w_toku.ppid, 
+    # pwt = mip_session.query(Procesy_w_toku.ppid, 
+    pwt = db.session.query(Procesy_w_toku.ppid, 
                             Procesy_Przydzielone.uid, 
                             Procesy.numer_procesu, 
                             Procesy_Przydzielone.nazwa_procesu, 
@@ -414,7 +408,7 @@ def podsumowanie_procesow():
     df_pwt["_stop"] = df_pwt.apply(lambda x: przydziel_czas(x.przerwij, x.zakoncz), axis=1)
     df_pwt["czas_czastkowy"] = df_pwt.apply(lambda x: oblicz_czas(x.czas_start, x._stop), axis=1)
     
-    df_pwt_gb = df_pwt.groupby(["nr_procesu", "nazwa_procesu", "uid"]).agg(
+    df_pwt_gb = df_pwt.groupby(["numer_procesu", "nazwa_procesu", "uid"]).agg(
     {"czas_start":"min", "_stop":"max", "czas_czastkowy": "sum", "ppid":"count"}
     ).rename(
         columns={"ppid": "ILOSC_PRZERW", "_stop": "CZAS_STOP", "czas_czastkowy":"CZAS_TRWANIA_PROCESU", "czas_start": "CZAS_START"}).reset_index()
@@ -427,19 +421,29 @@ def podsumowanie_procesow():
 @login_required
 def podglad_procesow():
 
-    pp_aktywne = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
+    # pp_aktywne = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
+    #     Procesy_Przydzielone.status == 1
+    # ).all()
+
+    # pp_wstrzymane = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
+    #     Procesy_Przydzielone.status == 2
+    # ).all()
+
+    # pp_nierozpoczete = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
+    #     Procesy_Przydzielone.status == 0
+    # ).all()
+
+    pp_aktywne = db.session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
         Procesy_Przydzielone.status == 1
     ).all()
 
-    pp_wstrzymane = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
+    pp_wstrzymane = db.session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
         Procesy_Przydzielone.status == 2
     ).all()
 
-    pp_nierozpoczete = mip_session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
+    pp_nierozpoczete = db.session.query(Procesy_Przydzielone.pid, Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.uid, Procesy_Przydzielone.planowany_dzien_rozpoczecia, Procesy_Przydzielone.preferowany_czas_wykonania).filter(
         Procesy_Przydzielone.status == 0
     ).all()
-
-
 
     if request.method == "POST":
         
@@ -447,7 +451,8 @@ def podglad_procesow():
             return redirect(url_for("edytuj_proces", pid=int(list(request.form.keys())[0].replace("edytuj_", ""))))
         
         if "zakoncz" in list(request.form.keys())[0]:
-            pp_zakoncz = mip_session.query(Procesy_Przydzielone).filter(
+            # pp_zakoncz = mip_session.query(Procesy_Przydzielone).filter(
+            pp_zakoncz = db.session.query(Procesy_Przydzielone).filter(
                 Procesy_Przydzielone.pid == int(list(request.form.keys())[0].replace("zakoncz_", ""))).first()
             
             if pp_zakoncz.uwagi_kier:
@@ -456,7 +461,8 @@ def podglad_procesow():
                 pp_zakoncz.uwagi_kier = f", ZAKONCZONO Z TABELI PROCESOW {dt.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
             pp_zakoncz.zakoncz_proces()
-            mip_session.commit()
+            # mip_session.commit()
+            db.session.commit()
 
             return redirect(url_for("podglad_procesow"))
 
@@ -467,7 +473,8 @@ def podglad_procesow():
 @login_required
 def edytuj_proces(pid):   
 
-    proces = mip_session.query(Procesy_Przydzielone).filter(
+    # proces = mip_session.query(Procesy_Przydzielone).filter(
+    proces = db.session.query(Procesy_Przydzielone).filter(
         Procesy_Przydzielone.pid == pid).first()
 
     lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.uid != proces.uid, User.rola.in_(("rozkroj", "agencja")))]
@@ -486,7 +493,8 @@ def edytuj_proces(pid):
         proces.planowany_dzien_rozpoczecia = request.form['planowana_data_rozpoczecia']
 
         # mip_session.add(proces)
-        mip_session.commit()
+        # mip_session.commit()
+        db.session.commit()
 
         return redirect(url_for('podglad_procesow'))
 
@@ -501,14 +509,16 @@ def edytuj_proces(pid):
 def dodaj_proces(): 
     
 
-    lista_procesow = [x[0] for x in mip_session.query(Procesy.proces).all()]
+    # lista_procesow = [x[0] for x in mip_session.query(Procesy.proces).all()]
+    lista_procesow = [x[0] for x in db.session.query(Procesy.proces).all()]
     lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.rola.in_(("rozkroj", "agencja")))]
 
 
     if request.method == "POST":
         
         uid = db.session.query(User.uid, User.username).filter(User.username == request.form["pracownik"]).first()[0] 
-        proces_id = mip_session.query(Procesy.pid).filter(Procesy.proces == request.form["proces"]).first()[0]
+        # proces_id = mip_session.query(Procesy.pid).filter(Procesy.proces == request.form["proces"]).first()[0]
+        proces_id = db.session.query(Procesy.pid).filter(Procesy.proces == request.form["proces"]).first()[0]
 
 
         try:
@@ -519,8 +529,10 @@ def dodaj_proces():
 
         pp = Procesy_Przydzielone(uid, current_user.uid, proces_id, request.form["nazwa_procesu"], request.form["planowana_data_rozpoczecia"], 
                                   pre_czas_wyk)
-        mip_session.add(pp)
-        mip_session.commit()
+        # mip_session.add(pp)
+        # mip_session.commit()
+        db.session.add(pp)
+        db.session.commit()
 
         return redirect(url_for("podsumowanie_procesow"))
 
@@ -534,11 +546,13 @@ def dodaj_proces():
 def kontrola_czasu(id_proces=None):    
     
     if id_proces:
-        wybrany_proces = mip_session.query(Procesy.proces).filter(Procesy.pid == int(id_proces)).first()[0]
+        # wybrany_proces = mip_session.query(Procesy.proces).filter(Procesy.pid == int(id_proces)).first()[0]
+        wybrany_proces = db.session.query(Procesy.proces).filter(Procesy.pid == int(id_proces)).first()[0]
     else:
         wybrany_proces = "FILTRUJ PROCESY"
     
-    procesy_lista = mip_session.query(Procesy.pid, Procesy.proces, Procesy.numer_procesu).all()
+    # procesy_lista = mip_session.query(Procesy.pid, Procesy.proces, Procesy.numer_procesu).all()
+    procesy_lista = db.session.query(Procesy.pid, Procesy.proces, Procesy.numer_procesu).all()
 
     print(procesy_lista)
 
@@ -584,54 +598,72 @@ def kontrola_czasu(id_proces=None):
 
 
 def dodaj_uwage(ppid, uwaga_text):
-    uwaga = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    # uwaga = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    uwaga = db.session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
     uwaga.uwagi_prac += f", {uwaga_text}"
-    mip_session.commit()
+    # mip_session.commit()
+    db.session.commit()
 
 def rozpoczecie_procesu(ppid):
     
-    mip_session.add(Procesy_w_toku(ppid=int(ppid)))
-    przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+    # mip_session.add(Procesy_w_toku(ppid=int(ppid)))
+    # przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+    db.session.add(Procesy_w_toku(ppid=int(ppid)))
+    przydzielony_porces = db.session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
 
     przydzielony_porces.rozpocznij_proces()
 
-    mip_session.commit()
+    # mip_session.commit()
+    db.session.commit()
 
 
 def przerwanie_procesu(ppid):
      
-    przerwany_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
-    przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+    # przerwany_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    # przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+    przerwany_proces = db.session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    przydzielony_porces = db.session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
                 
     przerwany_proces.przerwij_proces()
     przydzielony_porces.przerwij_proces()
                
-    mip_session.commit()
+    # mip_session.commit()
+    db.session.commit()
 
 def zakonczenie_procesu(ppid):
 
-    zakonczony_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
-    przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+    # zakonczony_proces = mip_session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    # przydzielony_porces = mip_session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
+    zakonczony_proces = db.session.query(Procesy_w_toku).filter(Procesy_w_toku.ppid == int(ppid)).all()[-1]
+    przydzielony_porces = db.session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.pid == int(ppid)).all()[-1]
 
     zakonczony_proces.zakoncz_proces()
     przydzielony_porces.zakoncz_proces()
 
-    mip_session.commit()
+    # mip_session.commit()
+    db.session.commit()
 
 def odswierz_procesy(id_procesu=None):
     
+    # if id_procesu:
+    #     procesy_przydzielone_query = mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(
+    #                             Procesy_Przydzielone.proces == int(id_procesu), Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).all()
+    # else:
+    #     procesy_przydzielone_query = mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(
+    #                             Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).all()
     if id_procesu:
-        procesy_przydzielone_query = mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(
+        procesy_przydzielone_query = db.session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(
                                 Procesy_Przydzielone.proces == int(id_procesu), Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).all()
     else:
-        procesy_przydzielone_query = mip_session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(
+        procesy_przydzielone_query = db.session.query(Procesy_Przydzielone.pid ,Procesy_Przydzielone.nazwa_procesu, Procesy_Przydzielone.status).filter(
                                 Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).all()
         
     procesy_przydzielone = []
 
     for pp in procesy_przydzielone_query:
         
-        rozpoczete_procesy_w_toku = mip_session.query(Procesy_w_toku.ppid, Procesy_w_toku.czas_start, Procesy_w_toku.przerwij, Procesy_w_toku.zakoncz, Procesy_w_toku.uwagi_prac).filter(Procesy_w_toku.ppid == pp[0], Procesy_w_toku.zakoncz == None).all()
+        # rozpoczete_procesy_w_toku = mip_session.query(Procesy_w_toku.ppid, Procesy_w_toku.czas_start, Procesy_w_toku.przerwij, Procesy_w_toku.zakoncz, Procesy_w_toku.uwagi_prac).filter(Procesy_w_toku.ppid == pp[0], Procesy_w_toku.zakoncz == None).all()
+        rozpoczete_procesy_w_toku = db.session.query(Procesy_w_toku.ppid, Procesy_w_toku.czas_start, Procesy_w_toku.przerwij, Procesy_w_toku.zakoncz, Procesy_w_toku.uwagi_prac).filter(Procesy_w_toku.ppid == pp[0], Procesy_w_toku.zakoncz == None).all()
    
         if len(rozpoczete_procesy_w_toku)>0:
         
@@ -647,6 +679,7 @@ def odswierz_procesy(id_procesu=None):
 @app.route("/pobierz_stan_mag", methods=["GET", "POST"])
 @login_required 
 def pobierze_stan_mag():
+    
     pass
 
 
