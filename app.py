@@ -534,7 +534,7 @@ def dodaj_proces():
         db.session.add(pp)
         db.session.commit()
 
-        return redirect(url_for("podsumowanie_procesow"))
+        return redirect(url_for("podglad_procesow"))
 
     
     
