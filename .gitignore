@@ -167,3 +167,4 @@ config.json
 BAZA_MIP.db
 testy.ipynb
 *.xlsx
+migrations
