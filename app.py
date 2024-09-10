@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
+from flask_migrate import Migrate
 from datetime import datetime as dt, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
@@ -40,6 +41,8 @@ with app.app_context():
     db.create_all()
 
 
+migrate = Migrate(app, db)
+
 @login_manager.user_loader
 def load_user(uid):
     
@@ -49,8 +52,16 @@ def load_user(uid):
 
 @app.route('/', methods=["GET", "POST"])
 def index():    
-    
-    return render_template("index.html", user=current_user)
+
+    dostepy = [[url_for('kod_wozka'), "SKANER KODÓW"],        
+                [url_for('aktualny_stan_magazynu'), "AKTUALNY STAN MAGAZYNU"],               
+                [url_for('kontrola_czasu'), "KONTROLA CZASU"],        
+                [url_for('podglad_procesow'), "PODGLAD PROCESOW"],        
+                [url_for('podsumowanie_procesow'), "PODSUMOWANIE PROCESOW"],        
+                [url_for('dodaj_proces'), "DODAJ PROCES"],        
+                [url_for('dodaj_urzytkownika'), "DODAJ URZYTKOWNIKA"]]
+            
+    return render_template("index.html", user=current_user, dostepy=dostepy)
 
 @app.route("/aktualny_stan_magazynu", methods=["GET", "POST"])
 def aktualny_stan_magazynu():
@@ -270,7 +281,8 @@ def kod_miejsca(numer_wozka):
         elif "miejsce_wozek" in list(request.form.keys()):
             # print("miejsc wózek!!!!", request.form.keys())
 
-            sant_mag = Stan_Mag(request.form.get('nurmerWozka').replace("_", "/"), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
+            # sant_mag = Stan_Mag(request.form.get('nurmerWozka').replace("_", "/"), request.form.get('kodMiejsca'), current_user.uid, dt.now().strftime("%Y-%m-%d %H:%M:%S"))
+            sant_mag = Stan_Mag(request.form.get('nurmerWozka').replace("_", "/"), request.form.get('kodMiejsca'), current_user.uid, dt.now())
             # mip_session.add(sant_mag)
             # mip_session.commit()
             db.session.add(sant_mag)
