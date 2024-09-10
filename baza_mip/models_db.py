@@ -10,8 +10,8 @@ class User(db.Model, UserMixin):
 
     uid = db.Column(Integer, primary_key=True)
     username = db.Column(String(128), nullable=False)
-    haslo = db.Column(String, nullable=False)
-    rola =  db.Column(String, nullable=True)
+    haslo = db.Column(String(512), nullable=False)
+    rola =  db.Column(String(512), nullable=True)
     nr_prac = db.Column(Integer)
 
     def __init__(self, username, rola, haslo):
@@ -30,13 +30,14 @@ class Dostepy(db.Model):
 
     did = db.Column(Integer, primary_key=True)
     uid = db.Column(Integer)
-    aktualny_stan_magazynu = db.Column(Integer, default=0)
-    magazyn_wozkow = db.Column(Integer, default=0)
-    odczyt_kod_miejsca = db.Column(Integer, default=0)
-    odczyt_kod_wozka = db.Column(Integer, default=0)
-    zabierz_przesun_wozek = db.Column(Integer, default=0)
-    kontrola_czasu = db.Column(Integer, default=0)
-    dodaj_proces = db.Column(Integer, default=0)
+    aktualny_stan_magazynu = db.Column(Boolean, default=0)
+    magazyn_wozkow = db.Column(Boolean, default=0)
+    odczyt_kod_miejsca = db.Column(Boolean, default=0)
+    odczyt_kod_wozka = db.Column(Boolean, default=0)
+    zabierz_przesun_wozek = db.Column(Boolean, default=0)
+    kontrola_czasu = db.Column(Boolean, default=0)
+    dodaj_proces = db.Column(Boolean, default=0)
+    dodaj_pracownika = db.Column(Boolean, default=0)
 
 class Stan_Mag(db.Model):
     __tablename__ = "stan_mag"
@@ -46,8 +47,10 @@ class Stan_Mag(db.Model):
     miejsce = db.Column("miejsce", String(10))
     kto_wstawil = db.Column("kto_wstawil", Integer)
     kto_zabral = db.Column("kto_zabral", Integer)
-    data_wstawienia = db.Column("data_wstawienia", String(19))
-    data_zabrania = db.Column("data_zabrania", String(19))
+    # data_wstawienia = db.Column("data_wstawienia", String(19))
+    # data_zabrania = db.Column("data_zabrania", String(19))
+    data_wstawienia = db.Column("data_wstawienia", DateTime)
+    data_zabrania = db.Column("data_zabrania", DateTime)
 
     def __init__(self, nr_wozka, miejsce, username_uid, data):
         self.nr_wozka = nr_wozka
