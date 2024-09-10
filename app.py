@@ -58,8 +58,39 @@ def aktualny_stan_magazynu():
     # stan_magazynu = mip_session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
     stan_magazynu = db.session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
     
-    return render_template("aktualny_stan_magazynu.html", stan_magazynu=stan_magazynu)
+    return render_template("aktualny_stan_magazynu.html", stan_magazynu=stan_magazynu, wolne_miejsca_mag=wolne_miejsca())
 
+
+def wolne_miejsca():
+
+    _miejsca_zajete = db.session.query(Stan_Mag.miejsce).distinct().filter(Stan_Mag.kto_zabral == None).all()
+    miejsca_zajete = [x[0] for x in _miejsca_zajete]
+
+    miejsca = {"A": range(1, 11),
+                "B": range(1, 11),
+                "C": range(1, 11),
+                "D": range(1, 11),
+                "E": range(1, 11),
+                "F": range(1, 10),
+                "G": range(1, 10),
+                "H": range(1, 9),
+                "I": range(1, 8),
+                "J": range(1, 9),
+                "K": range(1, 8),
+                "L": range(1, 9),
+                "M": range(1, 8),
+                "N": range(1, 9),
+                "O": range(1, 8),
+                }
+
+    wolne_miejsca_mag = list()
+    for key in miejsca.keys():
+        for p in miejsca[key]:
+            nr_miejsca = f"M01.{key}{p}" if p > 9 else f"M01.{key}0{p}"
+            if nr_miejsca not in miejsca_zajete:
+                wolne_miejsca_mag.append(f"M01.{key}{p}" if p > 9 else f"M01.{key}0{p}")
+
+    return wolne_miejsca_mag
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -688,3 +719,4 @@ def skaner_qr():
 
     
     return render_template("skaner_qr.html")
+
