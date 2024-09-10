@@ -118,7 +118,7 @@ def login():
 
         if user.haslo == haslo:
             login_user(user)
-            return render_template("index.html")
+            return redirect(url_for("index"))
         else:
             return redirect(url_for("login"))
 
