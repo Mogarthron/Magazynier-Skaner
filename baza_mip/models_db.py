@@ -87,7 +87,7 @@ class Procesy_Przydzielone(db.Model):
     kid = db.Column("kid", Integer)
     proces = db.Column("proces", Integer)
     nazwa_procesu = db.Column("nazwa_procesu", String(128))
-    data_utworzenia = db.Column("data_utworzenia", String(19))
+    data_utworzenia = db.Column("data_utworzenia", DateTime)
     planowany_dzien_rozpoczecia = db.Column(String(10))    
     priorytet = db.Column(Integer)
     status = db.Column(Integer)
@@ -101,7 +101,7 @@ class Procesy_Przydzielone(db.Model):
         self.proces = proces
         self.nazwa_procesu = nazwa_procesu
         self.planowany_dzien_rozpoczecia = planowany_dzien_rozpoczecia
-        self.data_utworzenia = dt.now().strftime("%Y-%m-%d")
+        self.data_utworzenia = dt.now()#.strftime("%Y-%m-%d")
         self.status = 0 #0 - NIE ROZPOCZETY, 1 - W TRAKCIE, 2- PRZERWANY, 3 - ZAKONCZONY
         self.aktywna = 1
         self.priorytet = 1
@@ -123,21 +123,21 @@ class Procesy_w_toku(db.Model):
 
     tid = db.Column("tid", Integer, primary_key=True, autoincrement=True)
     ppid = db.Column("ppid", Integer)
-    czas_start = db.Column("czas_start", String(19))
-    przerwij = db.Column("przerwij", String(19))
-    zakoncz = db.Column("zakoncz", String(19))
+    czas_start = db.Column("czas_start", DateTime)
+    przerwij = db.Column("przerwij", DateTime)
+    zakoncz = db.Column("zakoncz", DateTime)
     uwagi_prac = db.Column("uwagi_pracownika", String(512))
 
     def __init__(self, ppid):
         self.ppid = ppid
-        self.czas_start = dt.now().strftime("%Y-%m-%d %H:%M:%S")   
+        self.czas_start = dt.now()   
         self.uwagi_prac = ""     
 
     def przerwij_proces(self):
-        self.przerwij = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.przerwij = dt.now()
 
     def zakoncz_proces(self):
-        self.zakoncz = dt.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.zakoncz = dt.now()
 
     def __repr__(self):
         return f"proces id: {self.ppid}, rozpoczęto: {self.czas_start}"
