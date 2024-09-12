@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, send_file
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_migrate import Migrate
 from datetime import datetime as dt, timedelta
@@ -459,6 +459,48 @@ def podsumowanie_procesow():
     df_pwt_gb["CZAS_CALOWITY"] = df_pwt_gb.apply(lambda x: oblicz_czas(x.CZAS_START, x.CZAS_STOP), axis=1)
 
     return render_template("podsumowanie_procesow.html", procesy_w_toku = df_pwt_gb.round(2))
+
+@app.route("/pobierz_raport")
+def pobierz_raport():
+   
+    pwt = db.session.query(Procesy_w_toku.ppid, 
+                            Procesy_Przydzielone.uid, 
+                            Procesy.numer_procesu,
+                            Procesy.proces, 
+                            Procesy_Przydzielone.nazwa_procesu, 
+                            Procesy_Przydzielone.preferowany_czas_wykonania,
+                            Procesy_w_toku.czas_start, 
+                            Procesy_w_toku.przerwij, 
+                            Procesy_w_toku.zakoncz).join(
+                            Procesy_Przydzielone, Procesy_Przydzielone.pid == Procesy_w_toku.ppid).join(
+                            Procesy, Procesy.pid == Procesy_Przydzielone.proces).join(
+                            User, User.uid == Procesy_Przydzielone.uid).filter(
+                            Procesy_Przydzielone.status == 3).order_by(Procesy_w_toku.ppid).all()
+    
+    df_pwt = pd.DataFrame(pwt)
+    df_pwt["czas_start"] = pd.to_datetime(df_pwt["czas_start"], format="%Y-%m-%d %H:%M:%S")
+    df_pwt["przerwij"] = pd.to_datetime(df_pwt["przerwij"], format="%Y-%m-%d %H:%M:%S")
+    df_pwt["zakoncz"] = pd.to_datetime(df_pwt["zakoncz"], format="%Y-%m-%d %H:%M:%S")
+
+    def przydziel_czas(przerwij, zakoncz):
+        if pd.isna(przerwij):
+            return zakoncz
+        return przerwij
+
+    df_pwt["_stop"] = df_pwt.apply(lambda x: przydziel_czas(x.przerwij, x.zakoncz), axis=1)
+    df_pwt["czas_czastkowy"] = df_pwt.apply(lambda x: oblicz_czas(x.czas_start, x._stop), axis=1)
+
+    import openpyxl
+    from openpyxl.utils.dataframe import dataframe_to_rows
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    for r in dataframe_to_rows(df_pwt, index=False, header=True):
+        ws.append(r)
+    # ws.append(df_pwt)
+    wb.save(f"raport_procesow.xlsx")
+
+    return send_file(f"raport_prcesow.xlsx")
 
 @app.route("/podglad_procesow", methods=["GET", "POST"])
 @login_required
