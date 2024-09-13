@@ -478,6 +478,14 @@ def pobierz_raport():
                             Procesy_Przydzielone.status == 3).order_by(Procesy_w_toku.ppid).all()
     
     df_pwt = pd.DataFrame(pwt)
+    df_pwt["numer_procesu"] = df_pwt.numer_procesu.apply(lambda x: int(x.split("_")[1]))
+
+    def nr_partii(x):
+        try:
+            return x.split("PARTII ")[1][:5]
+        except:
+            return "BRAK NUMERU PARTII"
+    df_pwt["nr_partii"] = df_pwt.nazwa_procesu.apply(nr_partii)
     df_pwt["czas_start"] = pd.to_datetime(df_pwt["czas_start"], format="%Y-%m-%d %H:%M:%S")
     df_pwt["przerwij"] = pd.to_datetime(df_pwt["przerwij"], format="%Y-%m-%d %H:%M:%S")
     df_pwt["zakoncz"] = pd.to_datetime(df_pwt["zakoncz"], format="%Y-%m-%d %H:%M:%S")
