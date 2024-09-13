@@ -24,14 +24,22 @@
         
         {% endfor %}
 
-      {% elif current_user.rola in ["rozkroj", "agencja", "logistyka"] %}
+      {% elif current_user.rola in ["rozkroj", "agencja", "logistyka", "piankarz"] %}
         
       <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">SKANER KODÓW</a>
       <hr>
       <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
       <hr>
+      {% if procesy == 0 %}
+
+      <button class="btn btn-primary btn-lg" disabled >KONTROLA CZASU</button>
+
+      {% else %}
+
       <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
-             
+
+      {% endif %}
+
       {% elif current_user.username == "eliza" %}  
 
       <a href="{{url_for('podglad_procesow')}}" class="btn btn-primary btn-lg" role="button">PODGLAD PROCESOW</a>
