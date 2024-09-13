@@ -30,12 +30,11 @@ class Dostepy(db.Model):
 
     did = db.Column(Integer, primary_key=True)
     uid = db.Column(Integer)
-    aktualny_stan_magazynu = db.Column(Boolean, default=0)
-    magazyn_wozkow = db.Column(Boolean, default=0)
-    odczyt_kod_wozka = db.Column(Boolean, default=0)
-    zabierz_przesun_wozek = db.Column(Boolean, default=0)
+    aktualny_stan_magazynu = db.Column(Boolean, default=0)    
+    odczyt_kod_wozka = db.Column(Boolean, default=0)    
     kontrola_czasu = db.Column(Boolean, default=0)
     dodaj_proces = db.Column(Boolean, default=0)
+    podglad_procesow = db.Column(Boolean, default=0)
     dodaj_pracownika = db.Column(Boolean, default=0)
 
 class Stan_Mag(db.Model):
