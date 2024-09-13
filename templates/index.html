@@ -30,15 +30,11 @@
       <hr>
       <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
       <hr>
-      {% if procesy == 0 %}
+          {% if procesy > 0 %}
 
-      <button class="btn btn-primary btn-lg" disabled >KONTROLA CZASU</button>
+          <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
 
-      {% else %}
-
-      <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
-
-      {% endif %}
+          {% endif %}
 
       {% elif current_user.username == "eliza" %}  
 
