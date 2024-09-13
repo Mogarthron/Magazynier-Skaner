@@ -24,7 +24,7 @@
         
         {% endfor %}
 
-      {% elif current_user.rola in ["rozkroj", "agencja"] %}
+      {% elif current_user.rola in ["rozkroj", "agencja", "logistyka"] %}
         
         <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
        
