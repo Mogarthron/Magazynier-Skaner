@@ -63,7 +63,8 @@ def index():
     
     if current_user:
 
-        procesy = db.session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).count()
+        # procesy = db.session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).count()
+        procesy = 1
         
 
     return render_template("index.html", user=current_user, dostepy=dostepy_admin, procesy=procesy)
