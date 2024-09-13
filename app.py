@@ -53,15 +53,20 @@ def load_user(uid):
 @app.route('/', methods=["GET", "POST"])
 def index():    
 
-    dostepy = [[url_for('kod_wozka'), "SKANER KODÓW"],        
+    dostepy_admin = [[url_for('kod_wozka'), "SKANER KODÓW"],        
                 [url_for('aktualny_stan_magazynu'), "AKTUALNY STAN MAGAZYNU"],               
                 [url_for('kontrola_czasu'), "KONTROLA CZASU"],        
                 [url_for('podglad_procesow'), "PODGLAD PROCESOW"],        
                 [url_for('podsumowanie_procesow'), "PODSUMOWANIE PROCESOW"],        
                 [url_for('dodaj_proces'), "DODAJ PROCES"],        
                 [url_for('dodaj_urzytkownika'), "DODAJ URZYTKOWNIKA"]]
-            
-    return render_template("index.html", user=current_user, dostepy=dostepy)
+    
+    if current_user:
+
+        procesy = db.session.query(Procesy_Przydzielone).filter(Procesy_Przydzielone.uid == current_user.uid, Procesy_Przydzielone.status < 3).count()
+        
+
+    return render_template("index.html", user=current_user, dostepy=dostepy_admin, procesy=procesy)
 
 @app.route("/aktualny_stan_magazynu", methods=["GET", "POST"])
 def aktualny_stan_magazynu():
@@ -132,21 +137,28 @@ def logout():
 def dodaj_urzytkownika():
 
     if current_user.rola == "admin":
-
+        
+        dostepne_role = [x[0] for x in db.session.query(User.rola).distinct()]
 
         if request.method == "POST":
             user = request.form.getlist('userName')[0]
-            rola = request.form.getlist('userRole')[0]
+
+            if request.form["userRole"] == "ROLA":
+                rola = request.form["newUserRole"]
+            else:
+                rola = request.form["userRole"]
+
             haslo = request.form.getlist('haslo')[0]
 
-            if db.session(User).filter(User.username == user):
+            if db.session.query(User).filter(User.username == user).first():
                 return render_template("dodaj_urzytkownika.html", urzytkownik_istnieje = user)
             else:
+                print(user, rola, haslo)
                 new_user = User(user, rola, haslo)
                 db.session.add(new_user)
                 db.session.commit()
         
-            return render_template("dodaj_urzytkownika.html", urzytkownik_istnieje = False)
+        return render_template("dodaj_urzytkownika.html", urzytkownik_istnieje = False, dostepne_role=dostepne_role)
     
     else:
         return redirect(url_for("index"))
