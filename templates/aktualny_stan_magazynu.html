@@ -5,14 +5,30 @@
 
   <h2>AKTUALNY STAN MAGAZYNU</h2>
   <hr>
-  <div class="row mb-3 overflow-scroll" style="height: 75px;">
-    <h3>WOLNE MIEJSCA</h3>
-    <ul class="list-group">
+  <div class="row mb-3 overflow-scroll">
 
-      {% for wm in wolne_miejsca_mag %}
-      <li class="list-group-item">{{wm}}</li>
-      {% endfor %}
-    </ul>
+
+<div class="accordion" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="flush-headingOne">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+        WOLNE MIEJSCA
+      </button>
+    </h2>
+    <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+      <ul class="list-group">
+        {% for m in wolne_miejsca_mag %}
+        <li class="list-group-item">{{m}}</li>
+         {% endfor %} 
+      </ul>
+    </div>
+  </div>
+ 
+</div>
+
+
+    
+    
   </div>
   <div class="row mb-3">
     <input id="wyszukajWozek" onkeyup="szukaniePozycji('wyszukajWozek', 'listaWozkow')" class="form-control "
