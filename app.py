@@ -570,7 +570,7 @@ def edytuj_proces(pid):
     proces = db.session.query(Procesy_Przydzielone).filter(
         Procesy_Przydzielone.pid == pid).first()
 
-    lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.uid != proces.uid, User.rola.in_(("rozkroj", "agencja")))]
+    lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.uid != proces.uid, User.rola.in_(("rozkroj", "agencja", "logistyka")))]
 
     if request.method == "POST":
         
