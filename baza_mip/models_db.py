@@ -32,7 +32,6 @@ class Dostepy(db.Model):
     uid = db.Column(Integer)
     aktualny_stan_magazynu = db.Column(Boolean, default=0)
     magazyn_wozkow = db.Column(Boolean, default=0)
-    odczyt_kod_miejsca = db.Column(Boolean, default=0)
     odczyt_kod_wozka = db.Column(Boolean, default=0)
     zabierz_przesun_wozek = db.Column(Boolean, default=0)
     kontrola_czasu = db.Column(Boolean, default=0)
