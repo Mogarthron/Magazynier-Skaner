@@ -600,17 +600,14 @@ def edytuj_proces(pid):
 
 @app.route("/dodaj_proces", methods=["GET", "POST"])
 def dodaj_proces(): 
-    
-
-    # lista_procesow = [x[0] for x in mip_session.query(Procesy.proces).all()]
+        
     lista_procesow = [x[0] for x in db.session.query(Procesy.proces).all()]
-    lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.rola.in_(("rozkroj", "agencja")))]
+    lista_pracownikow = [x[0] for x in db.session.query(User.username).filter(User.rola.in_(("rozkroj", "agencja", "logistyka")))]
 
 
     if request.method == "POST":
         
         uid = db.session.query(User.uid, User.username).filter(User.username == request.form["pracownik"]).first()[0] 
-        # proces_id = mip_session.query(Procesy.pid).filter(Procesy.proces == request.form["proces"]).first()[0]
         proces_id = db.session.query(Procesy.pid).filter(Procesy.proces == request.form["proces"]).first()[0]
 
 
@@ -622,8 +619,7 @@ def dodaj_proces():
 
         pp = Procesy_Przydzielone(uid, current_user.uid, proces_id, request.form["nazwa_procesu"], request.form["planowana_data_rozpoczecia"], 
                                   pre_czas_wyk)
-        # mip_session.add(pp)
-        # mip_session.commit()
+        
         db.session.add(pp)
         db.session.commit()
 
