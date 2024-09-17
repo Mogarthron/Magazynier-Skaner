@@ -625,7 +625,7 @@ def kontrola_czasu(id_proces=None):
     
     procesy_lista = db.session.query(Procesy.pid, Procesy.proces, Procesy.numer_procesu).all()
 
-    print(procesy_lista)
+    # print(procesy_lista)
 
     if request.method == "POST":
         
