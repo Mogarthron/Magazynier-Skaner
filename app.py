@@ -75,8 +75,8 @@ def index():
 def aktualny_stan_magazynu():
 
     stan_magazynu = db.session.query(Stan_Mag).filter(Stan_Mag.data_zabrania == None).order_by(Stan_Mag.nr_wozka).all()
-    
-    return render_template("aktualny_stan_magazynu.html", stan_magazynu=stan_magazynu, wolne_miejsca_mag=wolne_miejsca())
+    wolne_miejsca_mag, ilosc_miejsc = wolne_miejsca()
+    return render_template("aktualny_stan_magazynu.html", stan_magazynu=stan_magazynu, wolne_miejsca_mag=wolne_miejsca_mag, ilosc_miejsc=ilosc_miejsc)
 
 
 def wolne_miejsca():
@@ -107,8 +107,10 @@ def wolne_miejsca():
             nr_miejsca = f"M01.{key}{p}" if p > 9 else f"M01.{key}0{p}"
             if nr_miejsca not in miejsca_zajete:
                 wolne_miejsca_mag.append(f"M01.{key}{p}" if p > 9 else f"M01.{key}0{p}")
+    
+    suma_miejsc = sum([max(miejsca[x]) for x in miejsca])
 
-    return wolne_miejsca_mag
+    return wolne_miejsca_mag, suma_miejsc
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
