@@ -36,13 +36,15 @@
 
           {% endif %}
 
-      {% elif current_user.username == "eliza" %}  
+      {% elif current_user.rola == "kierownik" %}  
 
       <a href="{{url_for('podglad_procesow')}}" class="btn btn-primary btn-lg" role="button">PODGLAD PROCESOW</a>
       <hr>
       <a href="{{url_for('podsumowanie_procesow')}}" class="btn btn-primary btn-lg" role="button">PODSUMOWANIE PROCESOW</a>
       <hr>
       <a href="{{url_for('dodaj_proces')}}" class="btn btn-primary btn-lg" role="button">DODAJ PROCES</a>    
+      <hr>
+      <a href="{{url_for('pobierz_stan_mag')}}" class="btn btn-primary btn-lg" role="button">POBIERZ STAN MAG</a>    
        
       {% endif %}
 

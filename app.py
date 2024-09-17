@@ -58,7 +58,8 @@ def index():
                 [url_for('podglad_procesow'), "PODGLAD PROCESOW"],        
                 [url_for('podsumowanie_procesow'), "PODSUMOWANIE PROCESOW"],        
                 [url_for('dodaj_proces'), "DODAJ PROCES"],        
-                [url_for('dodaj_urzytkownika'), "DODAJ URZYTKOWNIKA"]]
+                [url_for('dodaj_urzytkownika'), "DODAJ URZYTKOWNIKA"],
+                [url_for('pobierz_stan_mag'), "POBIERZ STAN MAGAZYNU"]]
     
     procesy = 0
 
@@ -731,10 +732,19 @@ def odswierz_procesy(id_procesu=None):
 
 @app.route("/pobierz_stan_mag", methods=["GET", "POST"])
 @login_required 
-def pobierze_stan_mag():
-    
-    pass
+def pobierz_stan_mag():
+          
+    stan_mag = pd.DataFrame(db.session.query(Stan_Mag.miejsce, Stan_Mag.nr_wozka, Stan_Mag.kto_wstawil, Stan_Mag.data_wstawienia, Stan_Mag.kto_zabral, Stan_Mag.data_zabrania).all())
 
+    users = pd.DataFrame(db.session.query(User.uid, User.username).all())
+
+    stan_mag["kto_wstawil"] = stan_mag.kto_wstawil.apply(lambda x: users[users.uid == x].username.values)
+    stan_mag["kto_zabral"] = stan_mag.kto_zabral.apply(lambda x: users[users.uid == x].username.values)
+
+    stan_mag.to_excel("stan_mag.xlsx", index=False)
+
+    return send_file(f"stan_mag.xlsx")
+    # return stan_mag.to_html(index=False)
 
 @app.route("/skaner_qr")
 def skaner_qr():
