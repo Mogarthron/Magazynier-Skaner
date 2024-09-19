@@ -234,196 +234,259 @@ def zabierz_przesun_wozek(numer_wozka):
     
     return render_template("zabierz_przesun_wozek.html", title=f"WÓZEK nr {numer_wozka}",numer_wozka=_numer_wozka, kod_miejsca=kod_miejsca[-1][0])
 
-# @app.route("/kod_miejsca/<numer_wozka>/", methods=["GET", "POST"], defaults={"kod_miejsca": None})
-# @app.route("/kod_miejsca/<numer_wozka>/<kod_miejsca>", methods=["GET","POST"])
-# # @login_required
-# def kod_miejsca(numer_wozka, kod_miejsca):
-#     _numer_wozka = numer_wozka.replace("_", "/")
-    
-#     if request.method == 'POST':
-#         if 'camera_image' in request.files:
-#             if 'camera_image' not in request.files:            
-#                 return jsonify({"error": "Brak pliku obrazu"}), 400
-            
-#             kod_miejsca = odczyt_numeru(request)  # Implementacja funkcji odczyt_numeru
-#             print("odczyt danych:", _numer_wozka, kod_miejsca, request.form.keys())        
+#Kod z OBSŁUGĄ JAVA SCRIPT
+@app.route("/kod_miejsca/<numer_wozka>/", methods=["GET", "POST"], defaults={"kod_miejsca": None})
+@app.route("/kod_miejsca/<numer_wozka>/<kod_miejsca>", methods=["GET", "POST"])
+def kod_miejsca(numer_wozka, kod_miejsca):
+    _numer_wozka = numer_wozka.replace("_", "/")
 
-#             # return render_template('odczytaj_kod_miejsca.html', numer_wozka=_numer_wozka, kod_miejsca=kod_miejsca)
-#             return redirect(url_for('kod_miejsca', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca))
-        
-#         elif kod_miejsca and 'miejsce_wozek' in request.form.keys():
-#             print("!!")
-#             kod_miejsca = request.form.get('kodMiejsca')
-#             if kod_miejsca and "JESZCZE NIE WYBRANO" not in kod_miejsca:
-#                 # Process the kod_miejsca and numer_wozka as needed
-#                 print("Confirming place:", _numer_wozka, kod_miejsca)
-
-#                 # Here you can add the logic to handle the confirmed place, e.g., save to database
-
-#                 return redirect(url_for('kod_wozka'))
-#             # else:
-#             #     return render_template('odczytaj_kod_miejsca.html', title="KOD MIEJSCA", numer_wozka=_numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
-#     # else:
-        
-#     return render_template('odczytaj_kod_miejsca.html', title="KOD MIEJSCA", numer_wozka=_numer_wozka, kod_miejsca="JESCZE NIE WYBRANO")
-
-@app.route("/kod_miejsca/<numer_wozka>", methods=["GET","POST"])
-@login_required
-def kod_miejsca(numer_wozka):
     if request.method == 'POST':
-        if "zaladuj_miejsce" in list(request.form.keys())[0]:
-            if 'camera_image' not in request.files:            
-                return jsonify({"error": "Brak pliku obrazu"}), 400
-           
-            kod_miejsca = odczyt_numeru(request, current_user.username)              
+        if 'camera_image' in request.files:
+            image = request.files['camera_image']
 
-            numer_wozka = numer_wozka.replace("_", "/")
-            print("odczyt danych:", numer_wozka,  kod_miejsca)
-        
+            if image.filename == '':
+                return jsonify({"error": "Nie wybrano pliku obrazu"}), 400
 
-            return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
-        elif "miejsce_wozek" in list(request.form.keys()):
-           
-            sant_mag = Stan_Mag(request.form.get('nurmerWozka').replace("_", "/"), request.form.get('kodMiejsca'), current_user.uid, dt.now())
+            # Procesowanie obrazu tutaj, np. zapis pliku lub przetwarzanie
+            kod_miejsca = odczyt_numeru(request)  # Implementacja funkcji odczyt_numeru
+            print("Odczyt danych:", _numer_wozka, kod_miejsca)
+
+            # Przekierowanie do strony z kodem miejsca
+            return jsonify({"redirect_url": url_for('kod_miejsca', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)})
+
+        elif kod_miejsca and 'miejsce_wozek' in request.form:
+            kod_miejsca = request.form.get('kodMiejsca')
+            print("Potwierdzono miejsce:", _numer_wozka, kod_miejsca)
+
+            sant_mag = Stan_Mag(_numer_wozka.replace("_", "/"), kod_miejsca, current_user.uid, dt.now())
            
             db.session.add(sant_mag)
             db.session.commit()
 
+
             return redirect(url_for('kod_wozka'))
+
+    return render_template('odczytaj_kod_miejsca.html', title="KOD MIEJSCA", numer_wozka=_numer_wozka, kod_miejsca=kod_miejsca or "JESZCZE NIE WYBRANO")
+
+# #Kod BEZ obsługi javascript
+# @app.route("/kod_miejsca/<numer_wozka>", methods=["GET","POST"])
+# @login_required
+# def kod_miejsca(numer_wozka):
+#     if request.method == 'POST':
+#         if "zaladuj_miejsce" in list(request.form.keys())[0]:
+#             if 'camera_image' not in request.files:            
+#                 return jsonify({"error": "Brak pliku obrazu"}), 400
+           
+#             kod_miejsca = odczyt_numeru(request, current_user.username)              
+
+#             numer_wozka = numer_wozka.replace("_", "/")
+#             print("odczyt danych:", numer_wozka,  kod_miejsca)
         
-        else:
-            return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
-    else:
+
+#             return render_template('odczytaj_kod_miejsca.html', numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
+#         elif "miejsce_wozek" in list(request.form.keys()):
+           
+#             sant_mag = Stan_Mag(request.form.get('nurmerWozka').replace("_", "/"), request.form.get('kodMiejsca'), current_user.uid, dt.now())
+           
+#             db.session.add(sant_mag)
+#             db.session.commit()
+
+#             return redirect(url_for('kod_wozka'))
         
-        return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca="JESZCZE NIE WYBRANO")
+#         else:
+#             return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca=kod_miejsca)
+#     else:
+        
+#         return render_template('odczytaj_kod_miejsca.html',title="KOD MIEJSCA", numer_wozka=numer_wozka, kod_miejsca="JESZCZE NIE WYBRANO")
+
+
+# def oblicz_czas(start, stop):
+#     """zwraca czas w minutach"""
+
+#     if stop.day == start.day:
+    
+#         dziesiata =  dt(stop.year, stop.month, stop.day, 10)
+#         trzynasta =  dt(stop.year, stop.month, stop.day, 13)
+    
+#         if stop <= dziesiata and start <= dziesiata:
+#             czas_pracy = (stop - start).seconds/60
+#             return czas_pracy
+        
+#         if (stop > dziesiata and stop <= trzynasta) and (start > dziesiata and start <= trzynasta):
+#             czas_pracy = (stop - start).seconds/60
+#             return czas_pracy
+        
+#         if (stop > trzynasta and start > trzynasta):
+#             czas_pracy = (stop - start).seconds/60
+#             return czas_pracy
+        
+#         if start < dziesiata and stop >dziesiata and stop < trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=15)).seconds/60
+#             return czas_pracy
+        
+#         if start < dziesiata and stop >= trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=30)).seconds/60
+#             return czas_pracy
+        
+#         if start > dziesiata and start < trzynasta and stop >= trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=15)).seconds/60
+#             return czas_pracy
+  
+#     if (stop.day - start.day) == 1:      
+#         start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
+#         start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
+#         stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
+#         stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
+
+#         if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
+#             return czas_pracy
+        
+#         if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15, minutes=45)).seconds/60
+#             return czas_pracy
+        
+#         if start >= start_trzynasta and stop < stop_dziesiata:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
+#             return czas_pracy
+        
+#         if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
+#             return czas_pracy
+
+#         if start >= start_trzynasta and stop > stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15, minutes=45)).seconds/60
+#             return czas_pracy
+
+#         return 111111
+    
+#     if (stop.day - start.day) > 1 and (stop.day - start.day) < 3:
+
+#         start_siudma = dt(start.year, start.month, start.day, 7, 0) 
+#         start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
+#         start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
+#         stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
+#         stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
+
+#         if start >= start_siudma and start < start_dziesiata and stop < stop_dziesiata:
+#             czas_pracy = (stop - start - timedelta(minutes=30)*2 - timedelta(hours=15+48, minutes=45)).seconds/60
+#             return czas_pracy
+
+#         if start >= start_siudma and start < start_dziesiata and stop >= stop_dziesiata and stop < stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=15)*5 - timedelta(hours=15+48, minutes=45)).seconds/60
+#             return czas_pracy
+
+#         if start >= start_siudma and start < start_dziesiata and stop < stop_dziesiata:
+#             czas_pracy = (stop - start - timedelta(minutes=30)*2 - timedelta(hours=15+48, minutes=45)).seconds/60
+#             return czas_pracy
+
+#         if start >= start_siudma and start < start_dziesiata and stop >= stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=15)*6 - timedelta(hours=15+48, minutes=45)).seconds/60
+#             return czas_pracy
+
+#         if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
+#             return czas_pracy
+
+#         if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15+48, minutes=45)).seconds/60
+#             return czas_pracy
+        
+#         if start >= start_trzynasta and stop < stop_dziesiata:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
+#             return czas_pracy
+        
+#         if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
+#             return czas_pracy
+
+#         return 222222
+
+#     if (stop.day - start.day) == 3:
+
+#         start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
+#         start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
+#         stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
+#         stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
+
+#         if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
+#             return czas_pracy
+        
+#         if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15+72, minutes=45)).seconds/60
+#             return czas_pracy
+        
+#         if start >= start_trzynasta and stop < stop_dziesiata:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
+#             return czas_pracy
+        
+#         if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
+#             czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
+#             return czas_pracy
+#         return 333333
+#     return 999999
+
+
 
 
 def oblicz_czas(start, stop):
-    """zwraca czas w minutach"""
+    """Zwraca czas pracy w minutach"""
+    
+    # Przerwy
+    przerwa_krotka = timedelta(minutes=15)
+    przerwa_dluga = timedelta(minutes=30)
+    
+    # Godziny przerw
+    dziesiata = dt(start.year, start.month, start.day, 10)
+    trzynasta = dt(start.year, start.month, start.day, 13)
 
+    def czas_miedzy(start, stop, przerwa):
+        """Oblicza czas pracy między start i stop z uwzględnieniem przerw."""
+        return (stop - start - przerwa).seconds / 60
+    
+    def oblicz_przerwy(start, stop):
+        """Zwraca odpowiednią długość przerwy w zależności od godzin pracy."""
+        if start < dziesiata and stop > dziesiata and stop <= trzynasta:
+            return przerwa_krotka
+        if start < dziesiata and stop > trzynasta:
+            return przerwa_dluga
+        if start >= dziesiata and start <= trzynasta and stop > trzynasta:
+            return przerwa_krotka
+        return timedelta(0)
+
+    # Obsługa przypadku, gdy start i stop są tego samego dnia
     if stop.day == start.day:
+        przerwa = oblicz_przerwy(start, stop)
+        return czas_miedzy(start, stop, przerwa)
     
-        dziesiata =  dt(stop.year, stop.month, stop.day, 10)
-        trzynasta =  dt(stop.year, stop.month, stop.day, 13)
+    # Obsługa przypadku, gdy start i stop są na różnych dniach
+    elif stop.day > start.day:
+        total_czas_pracy = 0
+        current_start = start
+
+        # Iteracja przez każdy dzień od start do stop
+        while current_start.date() <= stop.date():
+            if current_start.date() == start.date():
+                # Dzień rozpoczęcia pracy
+                dzien_stop = dt(current_start.year, current_start.month, current_start.day, 23, 59, 59)
+                przerwa = oblicz_przerwy(current_start, dzien_stop)
+                total_czas_pracy += czas_miedzy(current_start, dzien_stop, przerwa)
+            elif current_start.date() == stop.date():
+                # Dzień zakończenia pracy
+                przerwa = oblicz_przerwy(dt(stop.year, stop.month, stop.day, 0, 0), stop)
+                total_czas_pracy += czas_miedzy(dt(stop.year, stop.month, stop.day, 0, 0), stop, przerwa)
+            else:
+                # Pełne dni między start i stop (bez przerw)
+                total_czas_pracy += 24 * 60  # 24 godziny w minutach
+            
+            # Przejście do następnego dnia
+            current_start += timedelta(days=1)
+
+        return total_czas_pracy
     
-        if stop <= dziesiata and start <= dziesiata:
-            czas_pracy = (stop - start).seconds/60
-            return czas_pracy
-        
-        if (stop > dziesiata and stop <= trzynasta) and (start > dziesiata and start <= trzynasta):
-            czas_pracy = (stop - start).seconds/60
-            return czas_pracy
-        
-        if (stop > trzynasta and start > trzynasta):
-            czas_pracy = (stop - start).seconds/60
-            return czas_pracy
-        
-        if start < dziesiata and stop >dziesiata and stop < trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=15)).seconds/60
-            return czas_pracy
-        
-        if start < dziesiata and stop >= trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=30)).seconds/60
-            return czas_pracy
-        
-        if start > dziesiata and start < trzynasta and stop >= trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=15)).seconds/60
-            return czas_pracy
-  
-    if (stop.day - start.day) == 1:      
-        start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
-        start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
-        stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
-        stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
+    return 0
 
-        if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
-            return czas_pracy
-        
-        if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15, minutes=45)).seconds/60
-            return czas_pracy
-        
-        if start >= start_trzynasta and stop < stop_dziesiata:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
-            return czas_pracy
-        
-        if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15, minutes=45)).seconds/60
-            return czas_pracy
-
-        if start >= start_trzynasta and stop > stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15, minutes=45)).seconds/60
-            return czas_pracy
-
-        return 111111
-    
-    if (stop.day - start.day) > 1 and (stop.day - start.day) < 3:
-
-        start_siudma = dt(start.year, start.month, start.day, 7, 0) 
-        start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
-        start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
-        stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
-        stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
-
-        if start >= start_siudma and start < start_dziesiata and stop < stop_dziesiata:
-            czas_pracy = (stop - start - timedelta(minutes=30)*2 - timedelta(hours=15+48, minutes=45)).seconds/60
-            return czas_pracy
-
-        if start >= start_siudma and start < start_dziesiata and stop >= stop_dziesiata and stop < stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=15)*5 - timedelta(hours=15+48, minutes=45)).seconds/60
-            return czas_pracy
-
-        if start >= start_siudma and start < start_dziesiata and stop < stop_dziesiata:
-            czas_pracy = (stop - start - timedelta(minutes=30)*2 - timedelta(hours=15+48, minutes=45)).seconds/60
-            return czas_pracy
-
-        if start >= start_siudma and start < start_dziesiata and stop >= stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=15)*6 - timedelta(hours=15+48, minutes=45)).seconds/60
-            return czas_pracy
-
-        if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
-            return czas_pracy
-
-        if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15+48, minutes=45)).seconds/60
-            return czas_pracy
-        
-        if start >= start_trzynasta and stop < stop_dziesiata:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
-            return czas_pracy
-        
-        if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+48, minutes=45)).seconds/60
-            return czas_pracy
-
-        return 222222
-
-    if (stop.day - start.day) == 3:
-
-        start_dziesiata =  dt(start.year, start.month, start.day, 10, 5)  
-        start_trzynasta =  dt(start.year, start.month, start.day, 13, 5)  
-        stop_dziesiata =  dt(stop.year, stop.month, stop.day, 10, 5)  
-        stop_trzynasta =  dt(stop.year, stop.month, stop.day, 13, 5)  
-
-        if start >= start_dziesiata and start < start_trzynasta and stop < stop_dziesiata:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
-            return czas_pracy
-        
-        if start >= start_dziesiata and start < start_trzynasta and stop >= stop_dziesiata and stop < stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=30) - timedelta(hours=15+72, minutes=45)).seconds/60
-            return czas_pracy
-        
-        if start >= start_trzynasta and stop < stop_dziesiata:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
-            return czas_pracy
-        
-        if start >= start_trzynasta and stop > stop_dziesiata and stop <= stop_trzynasta:
-            czas_pracy = (stop - start - timedelta(minutes=15) - timedelta(hours=15+72, minutes=45)).seconds/60
-            return czas_pracy
-        return 333333
-    return 999999
 
 @app.route("/podsumowanie_procesow", methods=["GET", "POST"])
 @login_required

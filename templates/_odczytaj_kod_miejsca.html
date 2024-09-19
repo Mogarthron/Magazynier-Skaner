@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<h1>KOD MIEJSCA</h1>
+
+<div class="container">
+
+  <div class="row mb-3">
+
+    <form method="post" enctype="multipart/form-data">
+      <label for="camera_image" class="form-label form-control-lg">ZESKANUJ KOD MIEJSCA</label>     
+      <input class="form-control" type="file" name="camera_image" accept="image/*" capture="camera">
+      <hr>
+      <input class="btn btn-primary " type="submit" name="zaladuj_miejsce" value="Zładuj kod meiejsca">
+      {% if  numer_wozka == "BRAK NUMERU"%}
+      <a href="{{url_for('kod_wozka')}}" class="btn btn-primary ms-5" role="button">Powtorz kod wózka</a> 
+      {% endif %}
+    </form>
+<!-- 
+    <form method="post" enctype="multipart/form-data">
+      <label for="camera_image" class="btn btn-primary btn-lg" >ZESKANUJ KOD MIEJSCA</label>     
+      <input id="camera_image" class="form-control" type="file" name="camera_image" accept="image/*" capture="camera" style="display: none;">
+      </form>  -->
+  </div>
+  <div class="row mb-3">
+
+    <form method="post">
+
+      <input type="text" class="form-control" name="nurmerWozka" value="{{numer_wozka}}">
+      <input type="text" class="form-control" name="kodMiejsca" value="{{kod_miejsca}}">
+      <br>
+      <input class="btn btn-primary" type="submit" name="miejsce_wozek" value="POTWIERDZ">
+    </form>
+
+  </div>
+
+  <div class="row mb-3">
+
+    <hr>    
+    <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a> 
+    <hr>
+    <a href="{{url_for('index')}}" class="btn btn-lg btn-primary" role="button">STRONA STARTOWA</a>
+    <hr>
+    <a href="{{url_for('logout')}}" class="btn btn-lg btn-danger" role="button">WYLOGUJ</a>
+
+  </div>
+</div>
+
+<!-- <script>
+
+    document
+      .querySelector('label[for="myFileInput"]')
+      .addEventListener("click", function (event) {
+        event.preventDefault();
+        document.getElementById("myFileInput").click();
+      });
+  
+    fetch("/static/rout_url.json")
+      .then((response) => response.json())
+      .then((data) => {
+        // Extract the server URL from the loaded data
+        const serverUrl = data.server_ip + "kod_wozka";
+        var myInput = document.getElementById("myFileInput");
+  
+        function sendPic() {
+          var file = myInput.files[0];
+          if (file) {
+            var formData = new FormData();
+            formData.append("camera_image", file);
+  
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", serverUrl, true); // Use the URL from the JSON file
+  
+            xhr.onload = function () {
+              if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.redirect_url) {
+                  window.location.href = response.redirect_url;
+                } else {
+                  console.log(
+                    "File uploaded successfully, but no redirect URL provided."
+                  );
+                }
+              } else {
+                console.error(
+                  "An error occurred during the upload:",
+                  xhr.statusText
+                );
+                console.error("Status:", xhr.status);
+                console.error("Response:", xhr.responseText);
+              }
+            };
+  
+            xhr.onerror = function () {
+              console.error("A network error occurred.");
+            };
+  
+            xhr.upload.onprogress = function (event) {
+              if (event.lengthComputable) {
+                var percentComplete = (event.loaded / event.total) * 100;
+                console.log(
+                  `File upload progress: ${percentComplete.toFixed(2)}%`
+                );
+              }
+            };
+  
+            // Add additional data from JSON to formData if needed
+            formData.append("numer_wozka", data.numer_wozka);
+  
+            xhr.send(formData);
+          } else {
+            console.error("No file selected");
+          }
+        }
+  
+        myInput.addEventListener("change", sendPic, false);
+      })
+      .catch((error) => console.error("Error loading JSON:", error));
+  </script> -->
+
+{% endblock %}
