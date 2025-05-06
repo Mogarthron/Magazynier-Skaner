@@ -25,7 +25,17 @@
         </div>
         <div class="mb-3">
           <label for="userRole" class="form-label">Rola urzytkownika</label>
-          <input type="text" class="form-control" name="userRole" id="userRole">          
+          <select class="form-select" name="userRole" id="userRole">
+
+            <option selected>ROLA</option>
+            {% for rola in dostepne_role %}
+            <option>{{rola}}</option>
+            {% endfor %}
+            
+          </select>
+
+          <input class="form-control" type="text" placeholder="DODAJ NOWĄ ROLE" name="newUserRole" id="newUserRole">
+                  
         </div>
         <div class="mb-3">
           <label for="haslo" class="form-label">Hasło</label>

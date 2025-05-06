@@ -16,45 +16,40 @@
       <h2>ZALOGOWANO JAKO {{current_user.username}}</h2>
 
       {% if current_user.rola == "admin" %}  
-      
-        <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">SKANER KODÓW</a>
-        <hr>
-        <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
-        <hr>       
-        <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
-        <hr>
-        <a href="{{url_for('podglad_procesow')}}" class="btn btn-primary btn-lg" role="button">PODGLAD PROCESOW</a>
-        <hr>
-        <a href="{{url_for('podsumowanie_procesow')}}" class="btn btn-primary btn-lg" role="button">PODSUMOWANIE PROCESOW</a>
-        <hr>
-        <a href="{{url_for('dodaj_proces')}}" class="btn btn-primary btn-lg" role="button">DODAJ PROCES</a>
-        <hr>
-        <a href="{{url_for('dodaj_urzytkownika')}}" class="btn btn-primary btn-lg" role="button">DODAJ URZYTKOWNIKA</a>
-      
+                     
+        {% for d in dostepy %}
 
-      {% elif current_user.rola in ["rozkroj", "agencja"] %}
+        <a href="{{d[0]}}" class="btn btn-primary btn-lg" role="button">{{d[1]}}</a>
+        <hr>
         
-        <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
-       
-             
-      {% elif current_user.username == "eliza" %}  
+        {% endfor %}
+
+      {% elif current_user.rola in ["rozkroj", "agencja", "logistyka", "piankarz"] %}
+        
+      <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">SKANER KODÓW</a>
+      <hr>
+      <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
+      <hr>
+          {% if procesy > 0 %}
+
+          <a href="{{url_for('kontrola_czasu')}}" class="btn btn-primary btn-lg" role="button">KONTROLA CZASU</a>
+
+          {% endif %}
+
+      {% elif current_user.rola == "kierownik" %}  
 
       <a href="{{url_for('podglad_procesow')}}" class="btn btn-primary btn-lg" role="button">PODGLAD PROCESOW</a>
       <hr>
       <a href="{{url_for('podsumowanie_procesow')}}" class="btn btn-primary btn-lg" role="button">PODSUMOWANIE PROCESOW</a>
       <hr>
-      <a href="{{url_for('dodaj_proces')}}" class="btn btn-primary btn-lg" role="button">DODAJ PROCES</a>
-     
-
-      {% else %}
-        <a href="{{url_for('kod_wozka')}}" class="btn btn-primary btn-lg" role="button">SKANER KODÓW</a>
-        <hr>
-        <a href="{{url_for('aktualny_stan_magazynu')}}" class="btn btn-primary btn-lg" role="button">AKTUALNY STAN MAGAZYNU</a>
+      <a href="{{url_for('dodaj_proces')}}" class="btn btn-primary btn-lg" role="button">DODAJ PROCES</a>    
+      <hr>
+      <a href="{{url_for('pobierz_stan_mag')}}" class="btn btn-primary btn-lg" role="button">POBIERZ STAN MAG</a>    
        
-        {% endif %}
+      {% endif %}
 
-        <hr>
-        <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
+      <hr>
+      <a href="{{url_for('logout')}}" class="btn btn-danger btn-lg" role="button">WYLOGUJ</a>
         
       {% else %}
       <h2>NIE ZALOGOWANO</h2>
